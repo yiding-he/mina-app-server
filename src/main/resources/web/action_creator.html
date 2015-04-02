@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>创建 Action</title>
+    <link rel="stylesheet" href="action_creator.css"/>
+    <script type="text/javascript" src="jquery-1.6.js"></script>
+    <script type="text/javascript" src="jquery.tmpl.min.js"></script>
+</head>
+<body>
+<div>本页面帮助你生成一个接口的代码和文档。</div>
+<table id="mainframe">
+    <tr>
+        <td style="width:50%" valign="top">
+            <h3>Action 名称：</h3>
+            <div class="field"><span class="label">名称：</span><input id="actionName" type="text"></div>
+            <div class="field"><span class="label">描述：</span><input id="actionDescription" type="text"></div>
+
+            <h3>参数</h3>
+            <table class="params" id="paramsTable">
+                <thead><tr><td>参数名</td><td>类型</td><td>描述</td><td>必传</td><td>缺省值</td><td>&nbsp;</td></tr></thead>
+                <tbody></tbody>
+            </table>
+            <div><button id="addParameter">添加参数</button> <a href="#" id="addPageParams">添加分页查询参数</a></div>
+
+            <h3>单行返回值</h3>
+            <table class="params" id="resultTable">
+                <thead><tr><td>属性名</td><td>类型</td><td>描述</td><td>&nbsp;</td></tr></thead>
+                <tbody></tbody>
+            </table>
+            <div><button id="addProperty">添加属性</button> <a href="#" id="addPageResultProperties">添加分页查询结果</a></div>
+            
+            <h3>多行返回值</h3>
+            <div class="field"><span class="label">名称：</span><input id="listPropertyName" type="text"></div>
+            <div class="field"><span class="label">描述：</span><input id="listPropertyDesc" type="text"></div>
+            <table class="params" id="listPropertyTable">
+                <thead><tr><td>属性名</td><td>类型</td><td>描述</td><td>&nbsp;</td></tr></thead>
+                <tbody></tbody>
+            </table>
+            <div><button id="addListProperty">添加属性</button></div>
+
+        </td>
+        <td style="background: #eee; padding: 0 1em 1em;" valign="top">
+            <h3><button id="generateCode">生成代码</button></h3>
+            <div id="code"></div>
+        </td>
+    </tr>
+</table>
+
+<script id="parameterTmpl" type="text/x-jquery-tmpl">
+    <tr>
+        <td><input type="text" class="paramName" size="12"></td>
+        <td><select class="paramType">
+            <option value="Type.String">String</option>
+            <option value="Type.StringArray">String[]</option>
+            <option value="Type.Integer">Integer</option>
+            <option value="Type.IntegerArray">Integer[]</option>
+            <option value="Type.Decimal">Decimal</option>
+            <option value="Type.DecimalArray">Decimal[]</option>
+            <option value="Type.Boolean">Boolean</option>
+            <option value="Type.BooleanArray">Boolean[]</option>
+            <option value="Type.Date">Date</option>
+            <option value="Type.Pojo">Pojo</option>
+        </select></td>
+        <td><input type="text" class="paramDesc" size="24"></td>
+        <td><input type="checkbox" checked="checked" class="paramRequired"></td>
+        <td><input type="text" class="paramDefault" size="8"></td>
+        <td><a href="#" class="paramDelete">X</a></td>
+    </tr>
+</script>
+
+<script id="propertyTmpl" type="text/x-jquery-tmpl">
+    <tr>
+        <td><input type="text" class="propertyName" size="12"></td>
+        <td><select class="propertyType">
+            <option value="Type.String">String</option>
+            <option value="Type.StringArray">String[]</option>
+            <option value="Type.Integer">Integer</option>
+            <option value="Type.IntegerArray">Integer[]</option>
+            <option value="Type.Decimal">Decimal</option>
+            <option value="Type.DecimalArray">Decimal[]</option>
+            <option value="Type.Boolean">Boolean</option>
+            <option value="Type.BooleanArray">Boolean[]</option>
+            <option value="Type.Date">Date</option>
+            <option value="Type.Pojo">Pojo</option>
+        </select></td>
+        <td><input type="text" class="propertyDesc" size="30"></td>
+        <td><a href="#" class="propertyDelete">X</a></td>
+    </tr>
+</script>
+
+
+<script type="text/javascript">
+    
+    String.prototype.startsWith = function(str) {
+        if (!str || this.length < str.length) {
+            return false;
+        }
+        
+        return this.substring(0, str.length) == str;
+    };
+    
+    String.prototype.endsWith = function(str) {
+        if (!str || this.length < str.length) {
+            return false;
+        }
+        
+        return this.substring(this.length - str.length, this.length) == str;
+    };
+    
+    String.prototype.removeEnd = function(str) {
+        if (!this.endsWith(str)) {
+            return this;
+        }
+
+        return this.substring(0, this.length - str.length);
+    };
+    
+    $(function() {
+        $('#generateCode').click(generateCode);
+        $('#addParameter').click(addParameter);
+        $('#addProperty').click(addProperty);
+        $('#addListProperty').click(addListProperty);
+        $('a.paramDelete,a.propertyDelete').live('click', deleteRow);
+        $('#addPageParams').click(addPageParams);
+        $('#addPageResultProperties').click(addPageResultProperties);
+        $('.paramType, .propertyType').change(typeChanged);
+    });
+    
+    var generateCode = function() {
+        var action_name = $('#actionName').val();
+        var action_desc = $('#actionDescription').val();
+        
+        var header = "import com.hyd.appserver.*;\nimport com.hyd.appserver.annotations.*;\n";
+        var anno_desc = 'description = "' + action_desc + '"';
+
+        var anno_params = '';
+        var param_trs = $('#paramsTable tbody tr');
+        if (param_trs.size() > 0) {
+            anno_params = ', parameters = {\n';
+            param_trs.each(function() {
+                var param_name = $(this).find('.paramName').val();
+                var param_type = $(this).find('.paramType').val();
+                var param_desc = $(this).find('.paramDesc').val();
+                var param_required = $(this).find('.paramRequired').get(0).checked;
+                var param_default = $(this).find('.paramDefault').val();
+                
+                anno_params += '    @Parameter(name = "' + param_name + 
+                        '", type = ' + param_type + 
+                        ', description = "' + param_desc + 
+                        '", required = ' + param_required;
+                
+                if ($.trim(param_default) != '') {
+                    anno_params += ', defaultValue = "' + param_default + '"';
+                }
+                anno_params += '),\n'
+            });
+            anno_params = anno_params.removeEnd(',\n') + '\n';
+            anno_params += '}';
+        }
+        
+        var anno_result = '';
+        var result_prop_trs = $('#resultTable tbody tr');
+        var result_listprop_trs = $('#listPropertyTable tbody tr');
+        if (result_prop_trs.size() > 0 || result_listprop_trs.size() > 0) {
+            anno_result = ', result = @Result(';
+            
+            if (result_prop_trs.size() > 0) {
+                anno_result += 'properties = {\n';
+
+                result_prop_trs.each(function() {
+                    var prop_name = $(this).find('.propertyName').val();
+                    var prop_type = $(this).find('.propertyType').val();
+                    var prop_desc = $(this).find('.propertyDesc').val();
+
+                    anno_result += '    @Property(name = "' + prop_name +
+                            '", type = ' + prop_type +
+                            ', description = "' + prop_desc + '"),\n';
+                });
+                anno_result = anno_result.removeEnd(',\n') + '\n';
+                anno_result += '}';
+            }
+            
+            if (result_listprop_trs.size() > 0) {
+                var list_prop_name = $('#listPropertyName').val();
+                var list_prop_desc = $('#listPropertyDesc').val();
+
+                anno_result += (result_prop_trs.size() > 0 ? ', ' : '') +
+                        'listProperties =\n        @ListProperty(name = "' + list_prop_name +
+                        '", description = "' + list_prop_desc + '", properties = {\n';
+
+                result_listprop_trs.each(function() {
+                    var prop_name = $(this).find('.propertyName').val();
+                    var prop_type = $(this).find('.propertyType').val();
+                    var prop_desc = $(this).find('.propertyDesc').val();
+
+                    anno_result += '    @Property(name = "' + prop_name +
+                            '", type = ' + prop_type +
+                            ', description = "' + prop_desc + '"),\n';
+                });
+                anno_result = anno_result.removeEnd(',\n') + '\n';
+                anno_result += '})';
+            }
+            anno_result += ')'
+        }
+
+        var anno = '@Function(' + anno_desc + anno_params + anno_result + ')\n';
+        
+        var class_define = "public class " + action_name + " implements Action {\n\n";
+        class_define += "    public Response execute(Request request) throws Exception {\n";
+        class_define += "        return Response.success(); // TODO: 实现这个方法\n";
+        class_define += "    }\n";
+        class_define += "}\n";
+
+        $('#code').html(html(header + '\n' + anno + class_define));
+    };
+    
+    var html = function(str) {
+        return str.replace(/</g, '&lt;').replace(/\n/g, '<br/>').replace(/ /g, '&nbsp;');
+    };
+    
+    var addParameter = function() {
+        $('#paramsTable tbody').append($('#parameterTmpl').tmpl({}));
+    };
+    
+    var addProperty = function() {
+        $('#resultTable tbody').append($('#propertyTmpl').tmpl({}));
+    };
+    
+    var addListProperty = function() {
+        $('#listPropertyTable tbody').append($('#propertyTmpl').tmpl({}));
+    };
+
+    var addPageResultProperties = function() {
+        var row = $('#propertyTmpl').tmpl({});
+        row.find('.propertyName').val('start');
+        row.find('.propertyType').val('Type.Integer');
+        row.find('.propertyDesc').val('开始位置');
+        $('#resultTable tbody').append(row);
+        row = $('#propertyTmpl').tmpl({});
+        row.find('.propertyName').val('limit');
+        row.find('.propertyType').val('Type.Integer');
+        row.find('.propertyDesc').val('最多返回记录数');
+        $('#resultTable tbody').append(row);
+        row = $('#propertyTmpl').tmpl({});
+        row.find('.propertyName').val('total');
+        row.find('.propertyType').val('Type.Integer');
+        row.find('.propertyDesc').val('总记录数');
+        $('#resultTable tbody').append(row);
+        return false;
+    };
+    
+    var addPageParams = function() {
+        var row = $('#parameterTmpl').tmpl({});
+        row.find('.paramName').val('start');
+        row.find('.paramType').val('Type.Integer');
+        row.find('.paramRequired').get(0).checked = false;
+        row.find('.paramDefault').val('0');
+        row.find('.paramDesc').val('开始位置');
+        $('#paramsTable tbody').append(row);
+        row = $('#parameterTmpl').tmpl({});
+        row.find('.paramName').val('limit');
+        row.find('.paramType').val('Type.Integer');
+        row.find('.paramRequired').get(0).checked = false;
+        row.find('.paramDefault').val('10');
+        row.find('.paramDesc').val('最多返回记录数');
+        $('#paramsTable tbody').append(row);
+        return false;
+    };
+
+    var deleteRow = function() {
+        $(this).closest('tr').remove();
+        return false;
+    };
+</script>
+</body>
+</html>

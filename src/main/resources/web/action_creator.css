@@ -1,0 +1,44 @@
+body, button, input {
+    font-size: 10pt;
+    font-family: sans-serif;
+}
+
+#mainframe {
+    width: 100%;
+}
+
+#actionDescription, #listPropertyDesc {
+    width: 30em;
+}
+
+#code {
+    font-family: monospace;
+}
+
+div.field {
+    margin-bottom: 3px;
+}
+
+table.params {
+    width: 100%;
+    border: none;
+}
+
+table.params td {
+    padding: 2px;
+}
+
+table.params thead td {
+    padding: 2px 5px;
+    font-weight: bold;
+    background-color: #eee;
+}
+
+a.paramDelete, a.propertyDelete {
+    text-decoration: none;
+    color: red;
+}
+
+table.params tbody td {
+    
+}

@@ -1,0 +1,15 @@
+body *, input, textarea, select, h1 {
+    font-family: 'Consolas', 'Courier New', 'Microsoft Yahei', monospace, sans-serif;
+    font-size: 10pt;
+}
+
+pre {
+    margin: 0.2em;
+    padding: 1em;
+    border: 1px solid #f0f0f0;
+    background: #f7f7f7;
+}
+
+h1 {
+    font-size: 14pt;
+}

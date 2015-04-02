@@ -1,0 +1,91 @@
+body, input, button, select, div.result {
+    font-size: 10pt;
+    font-family: monospace, 'Microsoft Yahei', sans-serif;
+}
+
+.result {
+    background-color: #eee;
+    border: 1px solid #ddd;
+    border-radius: 2px;
+    padding: 0.5em 1em;
+    margin-bottom: 5px;
+}
+
+.field {
+    margin-top: 1em;
+}
+
+.label {
+    background-color: #ffc;
+    border: 1px solid #eda;
+    border-radius: 2px;
+    color: #863;
+    padding: 0.4em 1em
+}
+
+.param, .property, .fieldvalue {
+    padding-left: 20px;
+    padding-top: 0.2em;
+    padding-bottom: 0.2em;
+}
+
+.property:hover {
+    background-color: #f2f2f2;
+}
+
+.fieldvalue.functionname {
+    font-size: 18pt;
+}
+
+.param.required {
+    color: #a00;
+}
+
+.param.optional {
+    color: #555;
+}
+
+.param.submit {
+    border-top: 1px solid #ddd;
+    padding-top: 0.3em;
+    margin-top: 0.3em;
+}
+
+.listproperty>.property {
+    margin-left: 2em;
+}
+
+.return_value_title {
+    font-weight: bold;
+    margin-top: 1.5em;
+    color: #996600;
+}
+
+.type {
+    background-color: #eee;
+    border: 1px solid #ddd;
+    padding: 1px 4px;
+    color: #000;
+}
+
+.param input[type=text] {
+    height: 20px;
+    width: 400px;
+}
+
+hr.split {
+    border: none;
+    border-top: 1px solid #ddd;
+    margin: 0.6em 0 0.6em 1.5em;
+}
+
+.codename {
+    display: inline-block;
+    min-width: 50pt;
+    color: #996600;
+}
+
+.type {
+    display: inline-block;
+    min-width: 37pt;
+}

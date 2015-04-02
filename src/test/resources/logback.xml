@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- logback 日志框架。配置文件说明：http://logback.qos.ch/manual/index.html -->
+<configuration>
+
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>[%-5level]%logger - %msg%n</pattern>
+            <!--<charset>GB18030</charset>-->
+        </encoder>
+    </appender>
+
+    <root level="INFO">
+        <appender-ref ref="STDOUT"/>
+    </root>
+
+    <logger name="com.hyd.appserver.MinaAppClient.pool" level="DEBUG"/>
+    <logger name="com.hyd.appserver.utils.IoSessionPool" level="DEBUG"/>
+    <logger name="com.hyd.appserver.core.IoSessionPoolManager" level="DEBUG"/>
+
+</configuration>

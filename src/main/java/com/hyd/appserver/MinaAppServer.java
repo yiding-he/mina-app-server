@@ -13,7 +13,6 @@ import com.hyd.appserver.http.*;
 import com.hyd.appserver.json.*;
 import com.hyd.appserver.snapshot.Snapshot;
 import com.hyd.appserver.utils.MinaUtils;
-import org.apache.mina.core.future.IoFuture;
 import org.apache.mina.core.service.IoAcceptor;
 import org.apache.mina.core.session.IdleStatus;
 import org.apache.mina.core.session.IoSession;
@@ -293,7 +292,7 @@ public class MinaAppServer {
 
         // 关闭客户端连接
         log.info("Shutting down sessions...");
-        closeSessions(SHUTDOWN_TIMEOUT_MILLIS);
+        closeSessions();
 
         // 执行侦听器
         if (contextListener != null) {
@@ -318,18 +317,10 @@ public class MinaAppServer {
     /**
      * 关闭所有连接
      *
-     * @param timeoutMillis 等待超时时间
      */
-    private void closeSessions(int timeoutMillis) {
-        List<IoFuture> futures = new ArrayList<IoFuture>();
+    private void closeSessions() {
         for (IoSession session : mainAcceptor.getManagedSessions().values()) {
-            if (session.isConnected() && !session.isClosing()) {
-                futures.add(session.close(true));
-            }
-        }
-
-        for (IoFuture future : futures) {
-            future.awaitUninterruptibly(timeoutMillis);
+            session.close(true);
         }
     }
 

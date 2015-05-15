@@ -14,7 +14,7 @@ import java.util.Date;
 public class TestConnectToOldServer {
 
     public static void main(String[] args) {
-        MinaAppClient client = new MinaAppClient("localhost", 8765);
+        MinaAppClient client = new MinaAppClient("localhost", 8090);
 
         Response response = client.send(
                 new Request("TestAction")

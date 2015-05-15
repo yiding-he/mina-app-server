@@ -13,7 +13,17 @@ import com.hyd.appserver.authentication.BasicAuthentication;
 public class Client {
 
     public static void main(String[] args) throws Exception {
+        MinaAppClient client = new MinaAppClient("localhost", 8090);
+        Response response = client.send(new Request("UserLogin")
+                .setParameter("username", "admin").setParameter("password", "admin"));
 
+        System.out.println(response.isSuccess());
+        System.out.println(response.getMessage());
+
+        client.close();
+    }
+
+    private static void testCall() throws InterruptedException {
         // 创建 client 对象，该对象是线程安全的
         final MinaAppClient client = new MinaAppClient("localhost", 8765);
         client.setAuthentication(new BasicAuthentication("username", "password"));

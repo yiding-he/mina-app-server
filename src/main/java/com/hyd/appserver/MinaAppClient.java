@@ -221,7 +221,7 @@ public class MinaAppClient implements Closeable {
         }
     }
 
-    private String sendString0(final String string, String functionName, final IoSession session) {
+    private String sendString0(final String string, final String functionName, final IoSession session) {
         IO_LOG.debug("request: " + string);
 
         // message object for reading
@@ -229,15 +229,8 @@ public class MinaAppClient implements Closeable {
         final Object[] messages = new Object[1];
         final int timeout = this.clientConfiguration.getSocketDataTimeoutSec() * 1000;
 
-        try {
-            session.write(string);
-            ReadFuture readFuture = session.read();
-            readFuture.await(timeout);
-            messages[0] = readFuture.getMessage();
-        } catch (InterruptedException e) {
-            LOG.error("请求服务器" + session.getRemoteAddress() + "超时[" + functionName + "]:" + e.toString());
-            session.close(true);
-        }
+        session.write(string);
+        read(functionName, session, messages, timeout);
 
         // parse message
         Object message = messages[0];
@@ -247,6 +240,33 @@ public class MinaAppClient implements Closeable {
             IO_LOG.debug("response: " + result);
         }
         return result;
+    }
+
+    private void read(final String functionName,
+                      final IoSession session,
+                      final Object[] messages, final int timeout) {
+        final ReadFuture readFuture = session.read();
+
+        Runnable runnable = new Runnable() {
+
+            public void run() {
+                try {
+                    readFuture.await(timeout);
+                    messages[0] = readFuture.getMessage();
+                } catch (InterruptedException e) {
+                    LOG.error("请求服务器" + session.getRemoteAddress() + "超时[" + functionName + "]:" + e.toString());
+                    session.close(true);
+                }
+            }
+        };
+
+        try {
+            Thread t = new Thread(runnable);
+            t.start();
+            t.join(timeout);
+        } catch (InterruptedException e) {
+            LOG.error("", e);
+        }
     }
 
     private void returnSession(IoSession session) {

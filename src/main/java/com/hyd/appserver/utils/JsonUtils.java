@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.serializer.SerializeConfig;
+import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.alibaba.fastjson.serializer.SimpleDateFormatSerializer;
 import com.hyd.appserver.core.ClientInfo;
 import com.hyd.appserver.Response;
@@ -85,7 +86,15 @@ public class JsonUtils {
     }
 
     public static String toJson(Object object) {
-        return JSON.toJSONString(object, mapping);
+        return toJson(object, false);
+    }
+
+    public static String toJson(Object object, boolean prettyFormat) {
+        if (prettyFormat) {
+            return JSON.toJSONString(object, mapping, SerializerFeature.PrettyFormat);
+        } else {
+            return JSON.toJSONString(object, mapping);
+        }
     }
 
     /////////////////////////////////////////////////////////

@@ -219,7 +219,7 @@ public class HttpRequestHandler implements MessageHandler<HttpRequestMessage> {
         String stack = response.getStackTrace();
         response.setStackTrace(null);
 
-        String result = JsonUtils.toJson(response);
+        String result = JsonUtils.toJson(response, true);
 
         response.setStackTrace(stack);
         return result;

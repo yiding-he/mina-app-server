@@ -362,10 +362,6 @@ public class Response implements Serializable {
         return value == null ? defaultValue : value;
     }
 
-    public boolean isEmpty() {
-        return data == null || data.isEmpty();
-    }
-
     /////////////////////////////////////////
 
     public transient Class<Action> actionType;

@@ -9,6 +9,8 @@ body, input, button, select, div.result {
     border-radius: 2px;
     padding: 0.5em 1em;
     margin-bottom: 5px;
+    max-height: 500px;
+    overflow-y: auto;
 }
 
 .field {

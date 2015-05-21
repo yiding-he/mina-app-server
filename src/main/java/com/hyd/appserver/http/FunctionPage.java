@@ -135,7 +135,13 @@ public class FunctionPage {
     }
 
     private String getResponseText() {
-        return this.responseText.replace("<", "&lt;").replace(">", "&gt;");
+        return this.responseText
+                .replace("&", "&amp;")
+                .replace("<", "&lt;")
+                .replace(">", "&gt;")
+                .replace("\n", "<br/>")
+                .replace("\t", "    ")
+                .replace(" ", "&nbsp;");
     }
 
     private String getStackTraceString() {

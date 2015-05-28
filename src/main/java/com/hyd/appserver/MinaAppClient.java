@@ -145,7 +145,7 @@ public class MinaAppClient implements Closeable {
                 }
 
                 @Override
-                public Response run() {
+                public Response invoke() {
                     return send0(request);
                 }
             };

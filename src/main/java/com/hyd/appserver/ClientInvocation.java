@@ -11,5 +11,5 @@ public interface ClientInvocation {
 
     Request getRequest();
 
-    Response run();
+    Response invoke();
 }

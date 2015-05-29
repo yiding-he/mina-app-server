@@ -1,9 +1,6 @@
 package clientinterceptor;
 
-import com.hyd.appserver.ClientInterceptor;
-import com.hyd.appserver.ClientInvocation;
-import com.hyd.appserver.MinaAppClient;
-import com.hyd.appserver.Response;
+import com.hyd.appserver.*;
 
 /**
  * (description)
@@ -26,5 +23,13 @@ public class ClientInterceptorDemo {
                 return invocation.invoke();
             }
         });
+
+        Request request = new Request("UserLogin")
+                .setParameter("user", "admin")
+                .setParameter("pass", "admin");
+
+        // 尽管 request 中只有两个参数，但实际发送给服务器的请求当中会自动加上 version 参
+        // 数，这就是 ClientInterceptor 的作用
+        client.send(request);
     }
 }

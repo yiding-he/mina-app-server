@@ -19,7 +19,7 @@ import demo.pojos.User;
         @Parameter(name = "username", description = "用户名", type = Type.String),
         @Parameter(name = "password", description = "密码", type = Type.String)
 }, result = @Result(properties = {
-        @Property(name = "user", description = "已登录用户信息", type = Type.Pojo, pojoType = User.class)
+        @Property(name = "userid", description = "用户ID", type = Type.String)
 }))
 public class UserLogin implements Action {
 
@@ -28,6 +28,6 @@ public class UserLogin implements Action {
         user.setUsername(request.getString("username"));
         user.setPassword(request.getString("password"));
 
-        return new Response().put("user", user);
+        return new Response().put("userid", 100);
     }
 }

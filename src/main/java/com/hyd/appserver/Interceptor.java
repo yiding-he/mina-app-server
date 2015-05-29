@@ -9,5 +9,5 @@ import com.hyd.appserver.core.ActionInvocation;
  */
 public interface Interceptor {
 
-    public Response intercept(ActionInvocation invocation) throws Exception;
+    Response intercept(ActionInvocation invocation) throws Exception;
 }

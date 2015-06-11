@@ -98,6 +98,7 @@ public class AppServerFactory {
         // action package
         String packages = properties.getProperty(PROPERTY_ACTION_PACKAGES);
         if (!StringUtils.isEmpty(packages)) {
+            packages = packages.replaceAll("\\s", "");
             String[] actionPackages = packages.split(",");
             server.setActionPackages(actionPackages);
         }

@@ -84,6 +84,7 @@ public class ClientConfiguration {
      * @param serverAddresses 服务器地址列表，可包含多个服务器地址，用逗号隔开，每个地址的格式为“server:port”
      */
     public void setServerAddressesString(String serverAddresses) {
+        serverAddresses = serverAddresses.replaceAll("\\s", "");
         String[] frags = serverAddresses.split(",");
         List<InetSocketAddress> addrList = new ArrayList<InetSocketAddress>();
 

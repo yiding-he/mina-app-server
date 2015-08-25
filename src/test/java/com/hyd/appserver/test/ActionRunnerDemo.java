@@ -42,4 +42,13 @@ public class ActionRunnerDemo {
         response = runner.run(request);
         assertTrue(response.isSuccess());
     }
+
+    @Test
+    public void testCreateDefault() throws Exception {
+        ActionRunner actionRunner = ActionRunner.create();
+        Request request = new Request("GetTime");
+        request.setParameter("time", "201212121212");
+        Response response = actionRunner.run(request);
+        assertTrue(response.isSuccess());
+    }
 }

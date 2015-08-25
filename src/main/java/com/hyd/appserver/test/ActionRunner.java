@@ -1,13 +1,13 @@
 package com.hyd.appserver.test;
 
-import com.hyd.appserver.Interceptor;
-import com.hyd.appserver.Request;
-import com.hyd.appserver.Response;
+import com.hyd.appserver.*;
 import com.hyd.appserver.core.ServerConfiguration;
 import com.hyd.appserver.core.AppServerCore;
 import com.hyd.appserver.core.Protocol;
 import com.hyd.appserver.spring.SpringActionRunnerInjector;
 import com.hyd.appserver.utils.JsonUtils;
+
+import java.io.IOException;
 
 /**
  * 用于在本地运行 Action （用于单元测试）的类
@@ -15,6 +15,12 @@ import com.hyd.appserver.utils.JsonUtils;
  * @author yiding.he
  */
 public class ActionRunner {
+
+    private AppServerCore core;
+
+    private ActionRunner(AppServerCore core) {
+        this.core = core;
+    }
 
     /**
      * 创建 ActionRunner
@@ -48,6 +54,17 @@ public class ActionRunner {
         return new ActionRunner(serverCore);
     }
 
+    /////////////////////////////////////////
+
+    public static ActionRunner create() {
+        try {
+            MinaAppServer server = DefaultServerMain.createDefaultServer(null, "/server.properties");
+            return new ActionRunner(server.getCore());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     private static String[] concat(String str, String[] strs) {
         if (strs == null || strs.length == 0) {
             return new String[]{str};
@@ -57,14 +74,6 @@ public class ActionRunner {
         result[0] = str;
         System.arraycopy(strs, 0, result, 1, strs.length);
         return result;
-    }
-
-    /////////////////////////////////////////
-
-    private AppServerCore core;
-
-    private ActionRunner(AppServerCore core) {
-        this.core = core;
     }
 
     public AppServerCore getCore() {

@@ -18,15 +18,16 @@ import java.util.List;
  */
 public class IpWhiteListFilter extends IoFilterAdapter {
 
-    private String protocol;
+    private final String protocol;
 
-    private List<String> ipWhiteList;
+    private final List<String> ipWhiteList;
 
     public IpWhiteListFilter(List<String> ipWhiteList, String protocol) {
         this.ipWhiteList = ipWhiteList;
         this.protocol = protocol;
     }
 
+    @Override
     public void sessionCreated(NextFilter nextFilter, IoSession ioSession) throws Exception {
 
         if (ipWhiteList == null || ipWhiteList.isEmpty()) {

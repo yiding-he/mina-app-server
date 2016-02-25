@@ -30,6 +30,8 @@ public class AppServerCore {
 
     private static final Logger RESPONSE_LOGGER = LoggerFactory.getLogger("com.hyd.appserver.log.response");
 
+    List<Class<Action>> actionClasses = new ArrayList<Class<Action>>();
+
     /**
      * 缓存“类型-接口名”匹配关系
      */
@@ -77,6 +79,15 @@ public class AppServerCore {
         return actionFactory;
     }
 
+    /**
+     * 设置 Action 对象工厂
+     *
+     * @param actionFactory Action 对象工厂
+     */
+    public void setActionFactory(ActionFactory actionFactory) {
+        this.actionFactory = actionFactory;
+    }
+
     public FunctionTypeMappings<Action> getTypeMappings() {
         return typeMappings;
     }
@@ -85,12 +96,12 @@ public class AppServerCore {
         return enabled;
     }
 
-    public ServerConfiguration getServerConfiguration() {
-        return serverConfiguration;
-    }
-
     public void setEnabled(boolean enabled) {
         this.enabled = enabled;
+    }
+
+    public ServerConfiguration getServerConfiguration() {
+        return serverConfiguration;
     }
 
     /**
@@ -100,15 +111,6 @@ public class AppServerCore {
      */
     public void setPackages(String[] packages) {
         this.typeMappings.setPackages(packages);
-    }
-
-    /**
-     * 设置 Action 对象工厂
-     *
-     * @param actionFactory Action 对象工厂
-     */
-    public void setActionFactory(ActionFactory actionFactory) {
-        this.actionFactory = actionFactory;
     }
 
     /**
@@ -158,6 +160,9 @@ public class AppServerCore {
             new Thread() {
                 @Override
                 public void run() {
+
+                    // 这个线程等待 100 毫秒是为了让服务器有时间
+                    // 将 Response 返回给客户端，以免关闭过快
                     try {
                         Thread.sleep(100);
                     } catch (InterruptedException e) {
@@ -456,14 +461,12 @@ public class AppServerCore {
         return missingParameters;
     }
 
+    /////////////////////////////////////////
+
     // 根据类名查找 Action 类
     private Class<Action> findClass(String className) {
         return typeMappings.find(className);
     }
-
-    /////////////////////////////////////////
-
-    List<Class<Action>> actionClasses = new ArrayList<Class<Action>>();
 
     /**
      * 列出所有的 Action 类

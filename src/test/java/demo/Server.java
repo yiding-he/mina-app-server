@@ -16,7 +16,12 @@ public class Server {
 
     public static void main(String[] args) throws Exception {
         // startServerManually();
-        startServerAutomatically();
+        // startServerAutomatically();
+        overrideListenIp();
+    }
+
+    private static void overrideListenIp() throws Exception {
+        DefaultServerMainMain.main(new String[]{"-ip", "127.0.0.1"});
     }
 
     private static void startServerAutomatically() throws Exception {

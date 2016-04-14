@@ -90,10 +90,10 @@ public class DefaultServerMain {
         }
 
         String ip = arguments.getString("ip");
-        if (ip == null) {
+        if (StringUtils.isEmpty(ip)) {
             ip = properties.getProperty("ip");
         }
-        if (ip == null) {
+        if (StringUtils.isEmpty(ip)) {
             ip = ServerConfiguration.DEFAULT_LISTEN_IP;
         }
 

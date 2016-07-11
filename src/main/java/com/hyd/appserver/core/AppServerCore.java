@@ -497,6 +497,8 @@ public class AppServerCore {
             }
         }
 
+        actionClasses.removeAll(Collections.singleton((Class<Action>) null));
+
         return actionClasses;
     }
 

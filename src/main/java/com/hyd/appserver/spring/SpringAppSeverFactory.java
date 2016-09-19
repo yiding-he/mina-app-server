@@ -1,10 +1,12 @@
 package com.hyd.appserver.spring;
 
+import com.hyd.appserver.DefaultServerMain;
 import com.hyd.appserver.MinaAppServer;
 import com.hyd.appserver.core.AppServerFactory;
 import com.hyd.appserver.core.ServerConfiguration;
 import org.springframework.context.ApplicationContext;
 
+import java.io.IOException;
 import java.util.Properties;
 
 /**
@@ -14,6 +16,24 @@ import java.util.Properties;
  * @author Yiding
  */
 public class SpringAppSeverFactory extends AppServerFactory {
+
+    /**
+     * 创建一个 AppServer 实例
+     *
+     * @param configResourcePath MinaAppServer 配置文件资源路径
+     * @param applicationContext Spring 上下文
+     *
+     * @return AppServer 实例
+     *
+     * @throws IOException 如果读取配置文件失败
+     */
+    public static MinaAppServer createServer(
+            String configResourcePath, ApplicationContext applicationContext)
+            throws IOException {
+
+        Properties properties = DefaultServerMain.combineArgumentsAndProperties(null, configResourcePath);
+        return createServer(properties, applicationContext);
+    }
 
     /**
      * 创建一个 AppServer 实例

@@ -3,16 +3,19 @@ package com.hyd.appserver.utils;
 import com.hyd.appserver.AppClientException;
 import com.hyd.appserver.ServerUnreachableException;
 import com.hyd.appserver.json.Constants;
-import org.apache.commons.pool.ObjectPool;
-import org.apache.commons.pool.PoolableObjectFactory;
-import org.apache.commons.pool.impl.GenericObjectPool;
+import org.apache.commons.pool2.ObjectPool;
+import org.apache.commons.pool2.PooledObject;
+import org.apache.commons.pool2.PooledObjectFactory;
+import org.apache.commons.pool2.impl.DefaultPooledObject;
+import org.apache.commons.pool2.impl.GenericObjectPool;
+import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.apache.mina.core.future.ConnectFuture;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.filter.codec.ProtocolCodecFilter;
 import org.apache.mina.filter.codec.textline.TextLineCodecFactory;
 import org.apache.mina.transport.socket.nio.NioSocketConnector;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -29,7 +32,7 @@ import java.util.concurrent.TimeUnit;
  */
 public class IoSessionPool {
 
-    static final Logger log = LoggerFactory.getLogger(IoSessionPool.class);
+    private static final Logger log = LogManager.getLogger(IoSessionPool.class);
 
     private static final long DEFAULT_CONNECTION_TIMEOUT = 30L;
 
@@ -77,20 +80,17 @@ public class IoSessionPool {
         this.maxCount = poolSize;
 
         IoSessionFactory factory = new IoSessionFactory();
-        GenericObjectPool.Config config = new GenericObjectPool.Config();
+        GenericObjectPoolConfig config = new GenericObjectPoolConfig();
 
-        config.maxActive = poolSize;
-        config.testOnBorrow = true;
+        config.setMaxTotal(poolSize);
+        config.setTestOnBorrow(true);
+        config.setBlockWhenExhausted(!failWhenExhausted);
 
         if (poolTimeoutSec > 0) {
-            config.maxWait = poolTimeoutSec * 1000;
+            config.setMaxWaitMillis(poolTimeoutSec * 1000);
         }
 
-        if (failWhenExhausted) {
-            config.whenExhaustedAction = GenericObjectPool.WHEN_EXHAUSTED_FAIL;
-        }
-
-        this.pool = new GenericObjectPool<IoSession>(factory, config);
+        this.pool = new GenericObjectPool<>(factory, config);
 
         initConnector(dataTimeoutSec);
     }
@@ -228,29 +228,36 @@ public class IoSessionPool {
 
     /////////////////////////////////////////
 
-    private class IoSessionFactory implements PoolableObjectFactory<IoSession> {
+    private class IoSessionFactory implements PooledObjectFactory<IoSession> {
 
-        public IoSession makeObject() throws Exception {
-            log.debug("creating session...");
-            return createIoSession();
+        @Override
+        public PooledObject<IoSession> makeObject() throws Exception {
+            log.debug(() -> "creating session...");
+            return new DefaultPooledObject<>(createIoSession());
         }
 
-        public void destroyObject(IoSession session) throws Exception {
-            log.debug("Closing session...");
-            session.close(true);
+        @Override
+        public void destroyObject(PooledObject<IoSession> p) throws Exception {
+            log.debug(() -> "Closing session...");
+            p.getObject().closeNow();
         }
 
-        public boolean validateObject(IoSession session) {
+        @Override
+        public boolean validateObject(PooledObject<IoSession> p) {
             // 如果闲置状态超过指定时间，则视为无效连接
+            IoSession session = p.getObject();
             long idled = System.currentTimeMillis() - session.getLastBothIdleTime();
             return idled < connTimeoutSec * 1000 && session.isConnected() && !session.isClosing();
         }
 
-        public void activateObject(IoSession o) throws Exception {
+        @Override
+        public void activateObject(PooledObject<IoSession> p) throws Exception {
+
         }
 
-        public void passivateObject(IoSession o) throws Exception {
-        }
+        @Override
+        public void passivateObject(PooledObject<IoSession> p) throws Exception {
 
+        }
     }
 }

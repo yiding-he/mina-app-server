@@ -1,18 +1,14 @@
 package com.hyd.appserver.utils;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Enumeration;
-import java.util.List;
+import java.util.*;
 import java.util.jar.JarFile;
 
 /**
@@ -23,7 +19,7 @@ import java.util.jar.JarFile;
 @SuppressWarnings({"unchecked"})
 public class ClassUtils {
 
-    static final Logger log = LoggerFactory.getLogger(ClassUtils.class);
+    static final Logger log = LogManager.getLogger(ClassUtils.class);
 
     /**
      * Searches the classpath for all classes matching a specified search criteria,

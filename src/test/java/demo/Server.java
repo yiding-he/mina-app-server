@@ -17,7 +17,7 @@ public class Server {
     public static void main(String[] args) throws Exception {
         // startServerManually();
         // startServerAutomatically();
-        overrideListenIp();
+        // overrideListenIp();
     }
 
     private static void overrideListenIp() throws Exception {

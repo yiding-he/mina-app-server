@@ -2,8 +2,8 @@ package com.hyd.appserver.core;
 
 import com.hyd.appserver.Action;
 import com.hyd.appserver.Request;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * (description)
@@ -11,8 +11,8 @@ import org.slf4j.LoggerFactory;
  * @author yiding.he
  */
 public class DefaultActionFactory implements ActionFactory {
-    
-    static final Logger log = LoggerFactory.getLogger(DefaultActionFactory.class);
+
+    static final Logger log = LogManager.getLogger(DefaultActionFactory.class);
 
     public Action getAction(Class<Action> type, Request request) {
         try {

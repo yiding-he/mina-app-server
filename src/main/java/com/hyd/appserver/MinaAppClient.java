@@ -4,10 +4,10 @@ import com.hyd.appserver.core.ClientInfo;
 import com.hyd.appserver.core.IoSessionPoolManager;
 import com.hyd.appserver.utils.JsonUtils;
 import com.hyd.appserver.utils.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.apache.mina.core.future.ReadFuture;
 import org.apache.mina.core.session.IoSession;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.Closeable;
 import java.util.List;
@@ -25,11 +25,11 @@ import java.util.Map;
  */
 public class MinaAppClient implements Closeable {
 
-    private static final Logger LOG = LoggerFactory.getLogger(MinaAppClient.class);
+    private static final Logger LOG = LogManager.getLogger(MinaAppClient.class);
 
-    private static final Logger IO_LOG = LoggerFactory.getLogger(MinaAppClient.class.getName() + ".io");
+    private static final Logger IO_LOG = LogManager.getLogger(MinaAppClient.class.getName() + ".io");
 
-    private static final Logger POOL_LOG = LoggerFactory.getLogger(MinaAppClient.class.getName() + ".pool");
+    private static final Logger POOL_LOG = LogManager.getLogger(MinaAppClient.class.getName() + ".pool");
 
     private ClientConfiguration clientConfiguration;
 

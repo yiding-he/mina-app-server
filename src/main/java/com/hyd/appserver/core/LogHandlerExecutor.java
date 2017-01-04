@@ -2,8 +2,8 @@ package com.hyd.appserver.core;
 
 import com.hyd.appserver.ActionContext;
 import com.hyd.appserver.LogHandler;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -58,7 +58,7 @@ public class LogHandlerExecutor {
 
     private static class LogHandlerRunnable implements Runnable {
 
-        static final Logger log = LoggerFactory.getLogger(LogHandlerExecutor.class);
+        static final Logger log = LogManager.getLogger(LogHandlerExecutor.class);
 
         private LogHandler logHandler;
 

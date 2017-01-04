@@ -13,6 +13,8 @@ import com.hyd.appserver.http.*;
 import com.hyd.appserver.json.*;
 import com.hyd.appserver.snapshot.Snapshot;
 import com.hyd.appserver.utils.MinaUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.apache.mina.core.service.IoAcceptor;
 import org.apache.mina.core.session.IdleStatus;
 import org.apache.mina.core.session.IoSession;
@@ -23,8 +25,6 @@ import org.apache.mina.handler.demux.DemuxingIoHandler;
 import org.apache.mina.handler.demux.ExceptionHandler;
 import org.apache.mina.handler.demux.MessageHandler;
 import org.apache.mina.transport.socket.nio.NioSocketAcceptor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -42,9 +42,9 @@ public class MinaAppServer {
 
     public static final String VERSION_STRING = "1.7";
 
-    static final Logger log = LoggerFactory.getLogger(MinaAppServer.class);
+    static final Logger log = LogManager.getLogger(MinaAppServer.class);
 
-    static final Logger ioLogger = LoggerFactory.getLogger("java.io.mina.exceptions");
+    static final Logger ioLogger = LogManager.getLogger("java.io.mina.exceptions");
 
     private static final int SHUTDOWN_TIMEOUT_MILLIS = 3000;  // 关闭服务器时等待连接关闭的超时时间
 

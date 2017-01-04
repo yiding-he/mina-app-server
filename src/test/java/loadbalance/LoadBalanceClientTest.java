@@ -4,7 +4,7 @@ import com.hyd.appserver.ClientConfiguration;
 import com.hyd.appserver.MinaAppClient;
 import com.hyd.appserver.Request;
 import com.hyd.appserver.Response;
-import org.apache.commons.lang.builder.ReflectionToStringBuilder;
+import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 
 /**
  * todo: description

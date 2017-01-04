@@ -16,10 +16,9 @@
         <commons.pool2.version>2.4.2</commons.pool2.version>
         <commons.lang3.version>3.5</commons.lang3.version>
         <fastjson.version>1.2.23</fastjson.version>
-        <slf4j.api.version>1.7.22</slf4j.api.version>
-        <logback.classic.version>1.1.8</logback.classic.version>
         <mina.core.version>2.0.16</mina.core.version>
         <junit.version>4.12</junit.version>
+        <log4j.version>2.7</log4j.version>
     </properties>
 
     <!-- 依赖关系 -->
@@ -40,15 +39,14 @@
             <version>${fastjson.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
-            <version>${slf4j.api.version}</version>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-api</artifactId>
+            <version>${log4j.version}</version>
         </dependency>
         <dependency>
-            <groupId>ch.qos.logback</groupId>
-            <artifactId>logback-classic</artifactId>
-            <version>${logback.classic.version}</version>
-            <optional>true</optional>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-core</artifactId>
+            <version>${log4j.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.mina</groupId>

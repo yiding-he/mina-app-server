@@ -3,8 +3,8 @@ package com.hyd.appserver.http;
 import com.hyd.appserver.annotations.AnnotationUtils;
 import com.hyd.appserver.annotations.Description;
 import com.hyd.appserver.annotations.ExposeablePojo;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.beans.BeanInfo;
 import java.beans.IntrospectionException;
@@ -22,7 +22,7 @@ import java.lang.reflect.Type;
  */
 public class PojoInfoPage {
 
-    static final Logger log = LoggerFactory.getLogger(PojoInfoPage.class);
+    static final Logger log = LogManager.getLogger(PojoInfoPage.class);
 
     private static final String page_pattern = "<html><head>" +
             "<title>POJO 结构</title><link rel=\"stylesheet\" href=\"../default.css\"/>" +

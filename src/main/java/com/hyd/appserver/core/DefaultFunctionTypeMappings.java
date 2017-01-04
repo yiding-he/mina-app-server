@@ -1,10 +1,13 @@
 package com.hyd.appserver.core;
 
 import com.hyd.appserver.utils.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * 通过接口名称找到相应的类
@@ -14,7 +17,7 @@ import java.util.*;
 @SuppressWarnings({"unchecked"})
 public class DefaultFunctionTypeMappings<T> implements FunctionTypeMappings<T> {
 
-    static final Logger log = LoggerFactory.getLogger(DefaultFunctionTypeMappings.class);
+    static final Logger log = LogManager.getLogger(DefaultFunctionTypeMappings.class);
 
     private List<String> packages = new ArrayList<String>();
 

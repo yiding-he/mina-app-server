@@ -4,8 +4,8 @@ import com.hyd.appserver.Authenticator;
 import com.hyd.appserver.Request;
 import com.hyd.appserver.utils.Base64;
 import com.hyd.appserver.utils.TripleDESUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -16,10 +16,10 @@ import java.util.Map;
  * @author yiding.he
  */
 public class BasicAuthenticator implements Authenticator {
-    
-    static final Logger log = LoggerFactory.getLogger(BasicAuthenticator.class);
-    
-    static final Logger securelog = LoggerFactory.getLogger("com.hyd.appserver.sesure");
+
+    static final Logger log = LogManager.getLogger(BasicAuthenticator.class);
+
+    static final Logger securelog = LogManager.getLogger("com.hyd.appserver.sesure");
 
     private Map<String, String> keyMappings = new HashMap<String, String>();
 

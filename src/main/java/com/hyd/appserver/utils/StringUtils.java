@@ -10,7 +10,7 @@ import java.util.Date;
  *
  * @author yiding.he
  */
-public class StringUtils extends org.apache.commons.lang.StringUtils {
+public class StringUtils extends org.apache.commons.lang3.StringUtils {
 
     public static boolean isEmpty(String string) {
         return string == null || string.trim().equals("");

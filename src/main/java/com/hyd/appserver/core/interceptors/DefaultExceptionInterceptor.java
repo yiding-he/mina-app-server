@@ -1,11 +1,11 @@
 package com.hyd.appserver.core.interceptors;
 
-import com.hyd.appserver.core.ActionInvocation;
 import com.hyd.appserver.Interceptor;
 import com.hyd.appserver.Request;
 import com.hyd.appserver.Response;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.hyd.appserver.core.ActionInvocation;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * 缺省错误处理
@@ -14,7 +14,7 @@ import org.slf4j.LoggerFactory;
  */
 public class DefaultExceptionInterceptor implements Interceptor {
 
-    private static final Logger LOG = LoggerFactory.getLogger(DefaultExceptionInterceptor.class);
+    private static final Logger LOG = LogManager.getLogger(DefaultExceptionInterceptor.class);
 
     @Override
     public Response intercept(ActionInvocation invocation) throws Exception {

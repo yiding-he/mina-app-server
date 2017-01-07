@@ -2,10 +2,10 @@ package demo;
 
 import com.hyd.appserver.ActionContext;
 import com.hyd.appserver.ContextListener;
-import com.hyd.appserver.LogHandler;
+import com.hyd.appserver.InvocationListener;
 import com.hyd.appserver.MinaAppServer;
-import com.hyd.appserver.core.ServerConfiguration;
 import com.hyd.appserver.core.Protocol;
+import com.hyd.appserver.core.ServerConfiguration;
 
 /**
  * (description)
@@ -17,7 +17,7 @@ public class AccessActionContext {
     public static void main(String[] args) {
         MinaAppServer server = new MinaAppServer(8090);
         server.setActionPackages("demo.actions");
-        server.setLogHandler(new DemoLogHandler());
+        server.setInvocationListener(new DemoInvocationListener());
         server.setHttpTestEnabled(false);
         server.setContextListener(new ContextListener() {
             @Override
@@ -36,10 +36,10 @@ public class AccessActionContext {
 
     /////////////////////////////////////////
 
-    private static class DemoLogHandler implements LogHandler {
+    private static class DemoInvocationListener implements InvocationListener {
 
         @Override
-        public void addLog(ActionContext context) {
+        public void invocationFinished(ActionContext context) {
             
             context.getResponse();
             Protocol protocol = context.getProtocol();

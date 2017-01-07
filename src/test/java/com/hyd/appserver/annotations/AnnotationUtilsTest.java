@@ -2,7 +2,7 @@ package com.hyd.appserver.annotations;
 
 import org.junit.Test;
 
-import static junit.framework.Assert.assertNotNull;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * (description)

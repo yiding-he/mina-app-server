@@ -27,7 +27,7 @@ public class JsonRequestHandler implements MessageHandler<JsonRequestMessage> {
 
         if (!request.isValid()) {
             LOG.error("请求格式不正确，来自 " + ioSession.getRemoteAddress() + ": " + request.getOriginalString());
-            ioSession.close(true);
+            ioSession.closeNow();
 
         } else {
             Response response = server.getCore().process(request, Protocol.Json);

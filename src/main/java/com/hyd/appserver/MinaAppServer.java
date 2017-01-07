@@ -132,10 +132,10 @@ public class MinaAppServer {
     /**
      * 设置日志处理类。日志处理类用于对接口调用日志进行处理。日志处理类会在单独的线程中调用。
      *
-     * @param logHandler 日志处理类
+     * @param invocationListener 日志处理类
      */
-    public void setLogHandler(LogHandler logHandler) {
-        this.core.setLogHandler(logHandler);
+    public void setInvocationListener(InvocationListener invocationListener) {
+        this.core.setInvocationListener(invocationListener);
     }
 
     /**
@@ -320,7 +320,7 @@ public class MinaAppServer {
      */
     private void closeSessions() {
         for (IoSession session : mainAcceptor.getManagedSessions().values()) {
-            session.close(true);
+            session.closeNow();
         }
     }
 

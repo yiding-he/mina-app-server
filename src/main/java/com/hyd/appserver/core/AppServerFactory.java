@@ -2,7 +2,7 @@ package com.hyd.appserver.core;
 
 import com.hyd.appserver.ContextListener;
 import com.hyd.appserver.Interceptor;
-import com.hyd.appserver.LogHandler;
+import com.hyd.appserver.InvocationListener;
 import com.hyd.appserver.MinaAppServer;
 import com.hyd.appserver.authentication.BasicAuthenticator;
 import com.hyd.appserver.spring.SpringServerInjector;
@@ -33,7 +33,7 @@ public class AppServerFactory {
 
     public static final String PROPERTY_CONTEXT_LISTENER = "context-listener";
 
-    public static final String PROPERTY_LOG_HANDLER = "log-handler";
+    public static final String PROPERTY_INVOCATION_LISTENER = "invocation-listener";
 
     public static final String PROPERTY_INTERCEPTORS = "interceptors";
 
@@ -109,10 +109,10 @@ public class AppServerFactory {
             initListener(server, contextListenerClassName);
         }
 
-        // log handler
-        String logHandlerClassName = properties.getProperty(PROPERTY_LOG_HANDLER);
-        if (!StringUtils.isEmpty(logHandlerClassName)) {
-            initLogHandler(server, logHandlerClassName);
+        // invocation listener
+        String invocationListenerClassName = properties.getProperty(PROPERTY_INVOCATION_LISTENER);
+        if (!StringUtils.isEmpty(invocationListenerClassName)) {
+            initInvocationListener(server, invocationListenerClassName);
         }
 
         // interceptors
@@ -154,10 +154,10 @@ public class AppServerFactory {
         }
     }
 
-    protected static void initLogHandler(MinaAppServer server, String logHandlerClassName) {
-        LogHandler handler = BeanFactory.getBeanByClass(server, logHandlerClassName);
-        if (handler != null) {
-            server.setLogHandler(handler);
+    protected static void initInvocationListener(MinaAppServer server, String className) {
+        InvocationListener invocationListener = BeanFactory.getBeanByClass(server, className);
+        if (invocationListener != null) {
+            server.setInvocationListener(invocationListener);
         }
     }
 

@@ -2,7 +2,7 @@ package demo.components;
 
 import com.hyd.appserver.Action;
 import com.hyd.appserver.ActionContext;
-import com.hyd.appserver.LogHandler;
+import com.hyd.appserver.InvocationListener;
 import org.springframework.stereotype.Component;
 
 /**
@@ -11,10 +11,10 @@ import org.springframework.stereotype.Component;
  * @author 贺一丁
  */
 @Component
-public class EmptyLogHandler implements LogHandler {
+public class EmptyInvocationListener implements InvocationListener {
 
     @Override
-    public void addLog(ActionContext context) throws Exception {
+    public void invocationFinished(ActionContext context) throws Exception {
         Action action = context.getAction();
         if (action != null) {
             System.out.println("接口 " + action.getClass() + " 被执行了。");

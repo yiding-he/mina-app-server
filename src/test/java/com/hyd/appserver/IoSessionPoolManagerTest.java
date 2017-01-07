@@ -29,7 +29,7 @@ public class IoSessionPoolManagerTest {
     }
 
     private static void borrow(IoSessionPoolManager manager) {
-        manager.borrowIoSession().close(false);
+        manager.borrowIoSession().closeNow();
         System.out.println("---- borrowed.");
     }
 }

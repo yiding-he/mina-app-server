@@ -5,7 +5,7 @@ package com.hyd.appserver;
  *
  * @author yiding.he
  */
-public interface LogHandler {
+public interface InvocationListener {
 
     /**
      * 处理接口调用，接口调用完成后将执行这个方法
@@ -14,5 +14,5 @@ public interface LogHandler {
      *
      * @throws Exception 如果处理失败
      */
-    void addLog(ActionContext context) throws Exception;
+    void invocationFinished(ActionContext context) throws Exception;
 }

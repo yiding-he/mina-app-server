@@ -1,7 +1,7 @@
 package com.hyd.appserver.core;
 
 import com.hyd.appserver.ActionContext;
-import com.hyd.appserver.LogHandler;
+import com.hyd.appserver.InvocationListener;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -13,36 +13,36 @@ import java.util.concurrent.Executors;
  *
  * @author yiding.he
  */
-public class LogHandlerExecutor {
+public class InvocationListenerExecutor {
 
     static volatile ExecutorService service;
 
-    private static final int DEFAULT_MAX_RUNNING_HANDLERS = 3;
+    public static final int DEFAULT_MAX_RUNNING = 3;
 
-    private static int maxRunningHandlers = DEFAULT_MAX_RUNNING_HANDLERS;
+    private static int maxRunning = DEFAULT_MAX_RUNNING;
 
     /**
      * 设置日志处理的并发量。本方法必须在服务器运行之前调用。
      *
-     * @param maxRunningHandlers 日志处理最大并发量
+     * @param maxRunning 日志处理最大并发量
      */
-    public static void setMaxRunningHandlers(int maxRunningHandlers) {
-        LogHandlerExecutor.maxRunningHandlers = maxRunningHandlers;
+    public static void setMaxRunning(int maxRunning) {
+        InvocationListenerExecutor.maxRunning = maxRunning;
     }
 
-    public static void executeHandler(LogHandler logHandler, ActionContext context) {
+    public static void executeHandler(InvocationListener invocationListener, ActionContext context) {
         checkExecutorService();
 
-        service.submit(new LogHandlerRunnable(logHandler, context));
+        service.submit(new LogHandlerRunnable(invocationListener, context));
     }
 
     private static void checkExecutorService() {
         // Java 5 以上版本中，将要赋值的成员声明为 volatile 就不会存在 DCL 的问题
         // http://jeremymanson.blogspot.com/2008/11/what-volatile-means-in-java.html
         if (service == null) {
-            synchronized (LogHandlerExecutor.class) {
+            synchronized (InvocationListenerExecutor.class) {
                 if (service == null) {
-                    service = Executors.newFixedThreadPool(maxRunningHandlers);
+                    service = Executors.newFixedThreadPool(maxRunning);
                 }
             }
         }
@@ -58,21 +58,21 @@ public class LogHandlerExecutor {
 
     private static class LogHandlerRunnable implements Runnable {
 
-        static final Logger log = LogManager.getLogger(LogHandlerExecutor.class);
+        static final Logger log = LogManager.getLogger(InvocationListenerExecutor.class);
 
-        private LogHandler logHandler;
+        private InvocationListener invocationListener;
 
         private ActionContext context;
 
-        private LogHandlerRunnable(LogHandler logHandler, ActionContext context) {
-            this.logHandler = logHandler;
+        private LogHandlerRunnable(InvocationListener invocationListener, ActionContext context) {
+            this.invocationListener = invocationListener;
             this.context = context;
         }
 
         // run() 方法在 Executor 线程中执行
         public void run() {
             try {
-                logHandler.addLog(this.context);
+                invocationListener.invocationFinished(this.context);
             } catch (Exception e) {
                 log.error("处理接口日志失败", e);
             }

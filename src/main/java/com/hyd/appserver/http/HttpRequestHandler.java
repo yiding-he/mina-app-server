@@ -1,6 +1,9 @@
 package com.hyd.appserver.http;
 
-import com.hyd.appserver.*;
+import com.hyd.appserver.Action;
+import com.hyd.appserver.MinaAppServer;
+import com.hyd.appserver.Request;
+import com.hyd.appserver.Response;
 import com.hyd.appserver.annotations.AnnotationUtils;
 import com.hyd.appserver.annotations.Function;
 import com.hyd.appserver.annotations.Parameter;
@@ -87,7 +90,7 @@ public class HttpRequestHandler implements MessageHandler<HttpRequestMessage> {
         }
 
         ioSession.write(message);
-        ioSession.close(false);
+        ioSession.closeNow();
     }
 
     private String generatePoolStatus(Map<Long, ProcessorSnapshot> snapshot) {

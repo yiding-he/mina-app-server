@@ -48,7 +48,7 @@ public class AppServerCore {
     /**
      * 自定义日志处理
      */
-    private LogHandler logHandler = null;
+    private InvocationListener invocationListener = null;
 
     /**
      * 拦截器
@@ -68,7 +68,7 @@ public class AppServerCore {
     /**
      * 如果 enabled 为 false，将拒绝一切请求。服务器关闭之前需要先切断业务处理，拒绝所有后续请求。
      */
-    private boolean enabled = true;
+    private volatile boolean enabled = true;
 
     public AppServerCore(ServerConfiguration configuration) {
         this.serverConfiguration = configuration;
@@ -119,10 +119,10 @@ public class AppServerCore {
     /**
      * 设置接口调用日志处理类
      *
-     * @param logHandler 接口调用日志处理类
+     * @param invocationListener 接口调用日志处理类
      */
-    public void setLogHandler(LogHandler logHandler) {
-        this.logHandler = logHandler;
+    public void setInvocationListener(InvocationListener invocationListener) {
+        this.invocationListener = invocationListener;
     }
 
     /**
@@ -226,8 +226,8 @@ public class AppServerCore {
         addActionStatistics(actionContext);     // 添加统计信息
 
         // 自定义日志处理。这里需要完整的上下文，所以放在最后
-        if (logHandler != null) {
-            LogHandlerExecutor.executeHandler(logHandler, actionContext);
+        if (invocationListener != null) {
+            InvocationListenerExecutor.executeHandler(invocationListener, actionContext);
         }
 
         return response;
@@ -237,8 +237,8 @@ public class AppServerCore {
     private void outputExecutionInfo(ActionContext actionContext) {
         long executeTime = actionContext.getExecutionEndMillis() - actionContext.getExecutionStartMillis();
 
-        REQUEST_LOGGER.debug("request: " + JsonUtils.toJson(actionContext.getRequest()));
-        RESPONSE_LOGGER.debug("response: " + JsonUtils.toJson(actionContext.getResponse()) + "; time: " + executeTime);
+        REQUEST_LOGGER.trace(() -> "request: " + JsonUtils.toJson(actionContext.getRequest()));
+        RESPONSE_LOGGER.trace(() -> "response: " + JsonUtils.toJson(actionContext.getResponse()) + "; time: " + executeTime);
     }
 
     // 根据异常信息生成 response
@@ -486,7 +486,7 @@ public class AppServerCore {
     }
 
     public void shutdown() {
-        LogHandlerExecutor.shutdown();
+        InvocationListenerExecutor.shutdown();
     }
 
     public void addInterceptor(int position, Interceptor interceptor) {

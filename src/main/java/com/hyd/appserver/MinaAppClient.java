@@ -255,7 +255,7 @@ public class MinaAppClient implements Closeable {
                     messages[0] = readFuture.getMessage();
                 } catch (InterruptedException e) {
                     LOG.error("请求服务器" + session.getRemoteAddress() + "超时[" + functionName + "]:" + e.toString());
-                    session.close(true);
+                    session.closeNow();
                 }
             }
         };

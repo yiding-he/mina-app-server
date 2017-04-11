@@ -25,22 +25,13 @@ public class ClassUtils {
 
     static final Logger log = LoggerFactory.getLogger(ClassUtils.class);
 
-    /**
-     * Searches the classpath for all classes matching a specified search criteria,
-     * returning them in a map keyed with the interfaces they implement or null if they
-     * have no interfaces. The search criteria can be specified via interface, package
-     * and jar name filter arguments
-     * <p/>
-     *
-     * @param iface        查询特定类型的类
-     * @param packageNames A Set of fully qualified package names to search for or
-     *                     or null to return classes in all packages
-     *
-     * @return A Map of a Set of Classes keyed to their interface names
-     */
     public static <T> List<Class<T>> findClasses(Class<T> iface, String... packageNames) {
-
         ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+        return findClasses(classLoader, iface, packageNames);
+    }
+
+    public static <T> List<Class<T>> findClasses(ClassLoader classLoader, Class<T> iface, String... packageNames) {
+
         List<String> packages = new ArrayList<String>(Arrays.asList(packageNames));
 
         List<Class<T>> result = new ArrayList<Class<T>>();

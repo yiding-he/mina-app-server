@@ -4,6 +4,7 @@ import com.hyd.appserver.*;
 import com.hyd.appserver.annotations.AnnotationUtils;
 import com.hyd.appserver.annotations.Function;
 import com.hyd.appserver.annotations.Parameter;
+import com.hyd.appserver.spring.SpringActionFactory;
 import com.hyd.appserver.utils.ClassUtils;
 import com.hyd.appserver.utils.JsonUtils;
 import com.hyd.appserver.utils.StringUtils;
@@ -481,7 +482,12 @@ public class AppServerCore {
 
         if (actionClasses.isEmpty()) {
             for (String packageName : typeMappings.getPackages()) {
-                List<Class<Action>> classes = ClassUtils.findClasses(Action.class, packageName);
+
+                ClassLoader classLoader = actionFactory instanceof SpringActionFactory ?
+                        ((SpringActionFactory) actionFactory).getApplicationContext().getClassLoader() :
+                        AppServerCore.class.getClassLoader();
+
+                List<Class<Action>> classes = ClassUtils.findClasses(classLoader, Action.class, packageName);
                 log.debug("found classes from " + packageName + ": " + classes);
                 actionClasses.addAll(classes);
             }

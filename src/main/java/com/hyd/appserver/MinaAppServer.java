@@ -12,6 +12,7 @@ import com.hyd.appserver.filters.IpWhiteListFilter;
 import com.hyd.appserver.http.*;
 import com.hyd.appserver.json.*;
 import com.hyd.appserver.snapshot.Snapshot;
+import com.hyd.appserver.utils.ClassHelper;
 import com.hyd.appserver.utils.MinaUtils;
 import org.apache.mina.core.service.IoAcceptor;
 import org.apache.mina.core.session.IdleStatus;
@@ -167,6 +168,14 @@ public class MinaAppServer {
 
     public ActionFactory getActionFactory() {
         return this.core.getActionFactory();
+    }
+
+    public void setClassHelper(ClassHelper classHelper) {
+        this.core.setClassHelper(classHelper);
+    }
+
+    public ClassHelper getClassHelper() {
+        return this.core.getClassHelper();
     }
 
     /**

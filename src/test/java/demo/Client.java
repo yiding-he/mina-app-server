@@ -4,6 +4,7 @@ import com.hyd.appserver.MinaAppClient;
 import com.hyd.appserver.Request;
 import com.hyd.appserver.Response;
 import com.hyd.appserver.authentication.BasicAuthentication;
+import org.junit.Test;
 
 /**
  * (description)
@@ -21,6 +22,13 @@ public class Client {
         System.out.println(response.getMessage());
 
         client.close();
+    }
+
+    @Test
+    public void testQueryUsers() throws Exception {
+        MinaAppClient client = new MinaAppClient("localhost", 8090);
+        Response response = client.send(new Request("QueryUsers"));
+        System.out.println(response.getData());
     }
 
     private static void testCall() throws InterruptedException {

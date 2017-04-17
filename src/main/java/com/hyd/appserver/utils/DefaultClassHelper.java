@@ -8,11 +8,7 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Enumeration;
-import java.util.List;
+import java.util.*;
 import java.util.jar.JarFile;
 
 /**
@@ -21,16 +17,16 @@ import java.util.jar.JarFile;
  * @author yiding.he
  */
 @SuppressWarnings({"unchecked"})
-public class ClassUtils {
+public class DefaultClassHelper implements ClassHelper {
 
-    static final Logger log = LoggerFactory.getLogger(ClassUtils.class);
+    static final Logger log = LoggerFactory.getLogger(DefaultClassHelper.class);
 
-    public static <T> List<Class<T>> findClasses(Class<T> iface, String... packageNames) {
+    public <T> List<Class<T>> findClasses(Class<T> iface, String... packageNames) {
         ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
         return findClasses(classLoader, iface, packageNames);
     }
 
-    public static <T> List<Class<T>> findClasses(ClassLoader classLoader, Class<T> iface, String... packageNames) {
+    public <T> List<Class<T>> findClasses(ClassLoader classLoader, Class<T> iface, String... packageNames) {
 
         List<String> packages = new ArrayList<String>(Arrays.asList(packageNames));
 

@@ -5,7 +5,8 @@ import com.hyd.appserver.annotations.AnnotationUtils;
 import com.hyd.appserver.annotations.Function;
 import com.hyd.appserver.annotations.Parameter;
 import com.hyd.appserver.spring.SpringActionFactory;
-import com.hyd.appserver.utils.ClassUtils;
+import com.hyd.appserver.utils.ClassHelper;
+import com.hyd.appserver.utils.DefaultClassHelper;
 import com.hyd.appserver.utils.JsonUtils;
 import com.hyd.appserver.utils.StringUtils;
 import org.slf4j.Logger;
@@ -68,6 +69,8 @@ public class AppServerCore {
      */
     private boolean enabled = true;
 
+    private ClassHelper classHelper = new DefaultClassHelper();
+
     public AppServerCore(ServerConfiguration configuration) {
         this.serverConfiguration = configuration;
     }
@@ -78,6 +81,14 @@ public class AppServerCore {
 
     public ActionFactory getActionFactory() {
         return actionFactory;
+    }
+
+    public void setClassHelper(ClassHelper classHelper) {
+        this.classHelper = classHelper;
+    }
+
+    public ClassHelper getClassHelper() {
+        return classHelper;
     }
 
     /**
@@ -487,7 +498,7 @@ public class AppServerCore {
                         ((SpringActionFactory) actionFactory).getApplicationContext().getClassLoader() :
                         AppServerCore.class.getClassLoader();
 
-                List<Class<Action>> classes = ClassUtils.findClasses(classLoader, Action.class, packageName);
+                List<Class<Action>> classes = this.classHelper.findClasses(classLoader, Action.class, packageName);
                 log.debug("found classes from " + packageName + ": " + classes);
                 actionClasses.addAll(classes);
             }

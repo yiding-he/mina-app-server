@@ -3,10 +3,10 @@ package com.hyd.appserver.json;
 import com.hyd.appserver.MinaAppServer;
 import com.hyd.appserver.Response;
 import com.hyd.appserver.core.Protocol;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.handler.demux.MessageHandler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * (description)
@@ -15,7 +15,7 @@ import org.apache.mina.handler.demux.MessageHandler;
  */
 public class JsonRequestHandler implements MessageHandler<JsonRequestMessage> {
 
-    private static final Logger LOG = LogManager.getLogger(JsonRequestHandler.class);
+    private static final Logger LOG = LoggerFactory.getLogger(JsonRequestHandler.class);
 
     private MinaAppServer server;
 

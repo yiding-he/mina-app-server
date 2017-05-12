@@ -1,8 +1,8 @@
 package com.hyd.appserver.utils.dynamicobj;
 
 import com.hyd.appserver.utils.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.beans.BeanInfo;
 import java.beans.Introspector;
@@ -20,7 +20,7 @@ import java.util.*;
 @SuppressWarnings("unchecked")
 public class DynamicObject extends HashMap<String, Object> {
 
-    private static final Logger log = LogManager.getLogger(DynamicObject.class);
+    private static final Logger LOG = LoggerFactory.getLogger(DynamicObject.class);
 
     public static final SimpleDateFormat[] FORMATS = {
             new SimpleDateFormat("yyyy/MM/dd HH:mm:ss"),
@@ -57,7 +57,7 @@ public class DynamicObject extends HashMap<String, Object> {
             try {
                 return Integer.parseInt(value.toString());
             } catch (NumberFormatException e) {
-                log.warn("", e);
+                LOG.warn("", e);
                 return defaultValue;
             }
         }
@@ -84,7 +84,7 @@ public class DynamicObject extends HashMap<String, Object> {
             try {
                 return Long.parseLong(value.toString());
             } catch (NumberFormatException e) {
-                log.warn("", e);
+                LOG.warn("", e);
                 return defaultValue;
             }
         }
@@ -111,7 +111,7 @@ public class DynamicObject extends HashMap<String, Object> {
             try {
                 return Double.parseDouble(value.toString());
             } catch (NumberFormatException e) {
-                log.warn("", e);
+                LOG.warn("", e);
                 return defaultValue;
             }
         }
@@ -259,7 +259,7 @@ public class DynamicObject extends HashMap<String, Object> {
                 return null;
             }
         } catch (Exception e) {
-            log.error("Failed converting " + value + " to " + type + ": " + e);
+            LOG.error("Failed converting " + value + " to " + type + ": " + e);
         }
 
         return null;
@@ -270,7 +270,7 @@ public class DynamicObject extends HashMap<String, Object> {
         try {
             return type.getDeclaredConstructor(new Class<?>[]{String.class}).newInstance(value.toString());
         } catch (Exception e) {
-            log.info("Property \"" + key + "\" cannot be converted to "
+            LOG.info("Property \"" + key + "\" cannot be converted to "
                     + type + ": String constructor cannot be executed");
             return null;
         }
@@ -289,7 +289,7 @@ public class DynamicObject extends HashMap<String, Object> {
                     return (T) this;
                 }
 
-                log.info("DynamicObject \"" + this + "\" cannot be converted to " + type);
+                LOG.info("DynamicObject \"" + this + "\" cannot be converted to " + type);
                 return null;
             }
 
@@ -355,14 +355,14 @@ public class DynamicObject extends HashMap<String, Object> {
                         }
 
                     } catch (Exception e) {
-                        log.info("Property \"" + key + "\" cannot be converted to " +
+                        LOG.info("Property \"" + key + "\" cannot be converted to " +
                                 propertyType + " (" + this.get(key) + ")", e);
                     }
                 }
 
                 return value;
             } catch (Exception e) {
-                log.info("Cannot cast " + toString() + " to " + type, e);
+                LOG.info("Cannot cast " + toString() + " to " + type, e);
                 return null;
             }
         }
@@ -388,7 +388,7 @@ public class DynamicObject extends HashMap<String, Object> {
                 }
             }
         } catch (Exception e) {
-            log.info("Property \"" + key + "\" cannot be cast to generic list.", e);
+            LOG.info("Property \"" + key + "\" cannot be cast to generic list.", e);
         }
 
         descriptor.getWriteMethod().invoke(value, getList(key, genericClass));
@@ -401,7 +401,7 @@ public class DynamicObject extends HashMap<String, Object> {
     ) throws IllegalAccessException, InvocationTargetException {
 
         if (!(this.get(key) instanceof List)) {
-            log.info("Property \"" + key + "\" cannot be cast to array");
+            LOG.info("Property \"" + key + "\" cannot be cast to array");
             return;
         }
 
@@ -476,7 +476,7 @@ public class DynamicObject extends HashMap<String, Object> {
             }
         }
 
-        log.warn("Unable to convert property \"" + key + "\" to list");
+        LOG.warn("Unable to convert property \"" + key + "\" to list");
         return Collections.emptyList();
     }
 }

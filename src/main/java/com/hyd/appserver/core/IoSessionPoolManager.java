@@ -3,9 +3,9 @@ package com.hyd.appserver.core;
 import com.hyd.appserver.AppClientException;
 import com.hyd.appserver.ClientConfiguration;
 import com.hyd.appserver.utils.IoSessionPool;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.apache.mina.core.session.IoSession;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.net.InetSocketAddress;
 import java.util.*;
@@ -18,7 +18,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class IoSessionPoolManager {
 
-    private static final Logger LOG = LogManager.getLogger(IoSessionPoolManager.class);
+    private static final Logger LOG = LoggerFactory.getLogger(IoSessionPoolManager.class);
 
     public static final int CHECK_INTERVAL_MILLIS = 10000;
 

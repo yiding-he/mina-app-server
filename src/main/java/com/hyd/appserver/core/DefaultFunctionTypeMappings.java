@@ -1,8 +1,8 @@
 package com.hyd.appserver.core;
 
 import com.hyd.appserver.utils.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -17,7 +17,7 @@ import java.util.Map;
 @SuppressWarnings({"unchecked"})
 public class DefaultFunctionTypeMappings<T> implements FunctionTypeMappings<T> {
 
-    static final Logger log = LogManager.getLogger(DefaultFunctionTypeMappings.class);
+    private static final Logger LOG = LoggerFactory.getLogger(DefaultFunctionTypeMappings.class);
 
     private List<String> packages = new ArrayList<String>();
 
@@ -77,7 +77,7 @@ public class DefaultFunctionTypeMappings<T> implements FunctionTypeMappings<T> {
                 mappings.put(className, result);
                 return result;
             } catch (Exception e) {
-                log.info("class not found: " + full);
+                LOG.info("class not found: " + full);
             }
         }
 

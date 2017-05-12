@@ -13,8 +13,6 @@ import com.hyd.appserver.http.*;
 import com.hyd.appserver.json.*;
 import com.hyd.appserver.snapshot.Snapshot;
 import com.hyd.appserver.utils.MinaUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.apache.mina.core.service.IoAcceptor;
 import org.apache.mina.core.session.IdleStatus;
 import org.apache.mina.core.session.IoSession;
@@ -25,6 +23,8 @@ import org.apache.mina.handler.demux.DemuxingIoHandler;
 import org.apache.mina.handler.demux.ExceptionHandler;
 import org.apache.mina.handler.demux.MessageHandler;
 import org.apache.mina.transport.socket.nio.NioSocketAcceptor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -40,15 +40,13 @@ import java.util.*;
 @SuppressWarnings("unchecked")
 public class MinaAppServer {
 
-    public static final String VERSION_STRING = "1.7";
+    public static final String VERSION_STRING = "2.0";
 
-    static final Logger log = LogManager.getLogger(MinaAppServer.class);
+    private static final Logger LOG = LoggerFactory.getLogger(MinaAppServer.class);
 
-    static final Logger ioLogger = LogManager.getLogger("java.io.mina.exceptions");
+    static final Logger IO_LOG = LoggerFactory.getLogger("java.io.mina.exceptions");
 
-    private static final int SHUTDOWN_TIMEOUT_MILLIS = 3000;  // 关闭服务器时等待连接关闭的超时时间
-
-    private static final List<MinaAppServer> INSTANCES = new ArrayList<MinaAppServer>();
+    private static final List<MinaAppServer> INSTANCES = new ArrayList<>();
 
     private static final int HTTP_PROCESSOR_POOL_SIZE = 10;   // HTTP 处理线程池大小
 
@@ -60,15 +58,11 @@ public class MinaAppServer {
 
     private AppServerCore core;
 
-    NioSocketAcceptor mainAcceptor;
+    private NioSocketAcceptor mainAcceptor;
 
-    NioSocketAcceptor adminAcceptor;
+    private NioSocketAcceptor adminAcceptor;
 
-    private Thread shutdownHookThread = new Thread(new Runnable() {
-        public void run() {
-            shutdown();
-        }
-    });
+    private Thread shutdownHookThread = new Thread(this::shutdown);
 
     private ContextListener contextListener;
 
@@ -77,7 +71,7 @@ public class MinaAppServer {
     /**
      * 其他附加在 MinaAppServer 实例上的属性，例如 Spring 的 ActionContext 就附在上面
      */
-    private Map<String, Object> properties = new HashMap<String, Object>();
+    private Map<String, Object> properties = new HashMap<>();
 
     public MinaAppServer(int port) {
         this(ServerConfiguration.DEFAULT_LISTEN_IP, port, port + 1000, ServerConfiguration.DEFAULT_MAX_PROCESSORS, ServerConfiguration.DEFAULT_IDLE_WAIT);
@@ -153,7 +147,7 @@ public class MinaAppServer {
      * @param ipAddresses 白名单 IP 地址
      */
     public void setIpWhiteList(String... ipAddresses) {
-        this.configuration.setIpWhiteList(new ArrayList<String>(Arrays.asList(ipAddresses)));
+        this.configuration.setIpWhiteList(new ArrayList<>(Arrays.asList(ipAddresses)));
     }
 
     /**
@@ -221,7 +215,7 @@ public class MinaAppServer {
      */
     public void start() {
         if (started) {
-            log.warn("Already started.");
+            LOG.warn("Already started.");
             return;
         }
 
@@ -239,15 +233,15 @@ public class MinaAppServer {
 
         // 侦听端口，完成启动
         try {
-            log.info("Starting server with ip " + configuration.getIp() + "...");
+            LOG.info("Starting server with ip " + configuration.getIp() + "...");
 
             mainAcceptor.setReuseAddress(true);
             mainAcceptor.bind(new InetSocketAddress(configuration.getIp(), configuration.getListenPort()));
             adminAcceptor.setReuseAddress(true);
             adminAcceptor.bind(new InetSocketAddress(configuration.getIp(), configuration.getAdminListenPort()));
 
-            log.info("Mina application server listening at " + configuration.getListenPort() + "...");
-            log.info("Mina application server started successfully. " +
+            LOG.info("Mina application server listening at " + configuration.getListenPort() + "...");
+            LOG.info("Mina application server started successfully. " +
                     "Server status: http://[server]:" + configuration.getAdminListenPort());
             started = true;
         } catch (Throwable e) {
@@ -280,7 +274,7 @@ public class MinaAppServer {
      * 1、ContextListener 执行花费的时间；
      * 2、剩余日志处理花费的时间。
      */
-    public void shutdown() {
+    private void shutdown() {
         if (!started) {
             return;
         }
@@ -291,7 +285,7 @@ public class MinaAppServer {
         this.core.setEnabled(false);
 
         // 关闭客户端连接
-        log.info("Shutting down sessions...");
+        LOG.info("Shutting down sessions...");
         closeSessions();
 
         // 执行侦听器
@@ -299,7 +293,7 @@ public class MinaAppServer {
             try {
                 contextListener.destroy(configuration);
             } catch (Throwable e) {
-                log.error("服务器关闭预处理失败", e);
+                LOG.error("服务器关闭预处理失败", e);
             }
         }
 
@@ -310,7 +304,7 @@ public class MinaAppServer {
         adminAcceptor.unbind();
         adminAcceptor.dispose(false);
 
-        log.info("Mina App Server closed successfully. Good bye.\n\n");
+        LOG.info("Mina App Server closed successfully. Good bye.\n\n");
         INSTANCES.remove(this);
     }
 
@@ -391,9 +385,9 @@ public class MinaAppServer {
 
         public void exceptionCaught(IoSession ioSession, Throwable e) throws Exception {
             if (e instanceof IOException) {
-                ioLogger.info(e.toString());
+                IO_LOG.info(e.toString());
             } else {
-                ioLogger.error("", e);
+                IO_LOG.error("", e);
             }
         }
     }

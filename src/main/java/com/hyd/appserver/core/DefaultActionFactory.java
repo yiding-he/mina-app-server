@@ -2,8 +2,8 @@ package com.hyd.appserver.core;
 
 import com.hyd.appserver.Action;
 import com.hyd.appserver.Request;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * (description)
@@ -12,13 +12,13 @@ import org.apache.logging.log4j.Logger;
  */
 public class DefaultActionFactory implements ActionFactory {
 
-    static final Logger log = LogManager.getLogger(DefaultActionFactory.class);
+    private static final Logger LOG = LoggerFactory.getLogger(DefaultActionFactory.class);
 
     public Action getAction(Class<Action> type, Request request) {
         try {
             return type.newInstance();
         } catch (Exception e) {
-            log.error("创建 Action 失败", e);
+            LOG.error("创建 Action 失败", e);
             return null;
         }
     }

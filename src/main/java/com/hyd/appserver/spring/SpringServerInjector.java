@@ -2,8 +2,8 @@ package com.hyd.appserver.spring;
 
 import com.hyd.appserver.AppServerException;
 import com.hyd.appserver.MinaAppServer;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.context.support.GenericXmlApplicationContext;
@@ -21,7 +21,7 @@ public class SpringServerInjector {
 
     public static final String APPCONTEXT_PROPERTY_NAME = "spring-app-context";
 
-    private static final Logger LOG = LogManager.getLogger(SpringServerInjector.class);
+    private static final Logger LOG = LoggerFactory.getLogger(SpringServerInjector.class);
 
     /**
      * 使用已有的 ApplicationContext 来初始化 MinaAppServer

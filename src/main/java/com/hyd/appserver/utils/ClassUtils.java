@@ -1,7 +1,7 @@
 package com.hyd.appserver.utils;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -19,7 +19,7 @@ import java.util.jar.JarFile;
 @SuppressWarnings({"unchecked"})
 public class ClassUtils {
 
-    static final Logger log = LogManager.getLogger(ClassUtils.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ClassUtils.class);
 
     /**
      * Searches the classpath for all classes matching a specified search criteria,
@@ -51,7 +51,7 @@ public class ClassUtils {
             try {
                 classPath = new File(classPathUrl.toURI());
             } catch (URISyntaxException e) {
-                log.error("Skipping classPath '" + classPathUrl + "'", e);
+                LOG.error("Skipping classPath '" + classPathUrl + "'", e);
                 continue;
             }
 
@@ -72,9 +72,9 @@ public class ClassUtils {
                     // get an enumeration of the files in this jar
                     files = module.entries();
                 } catch (MalformedURLException e) {
-                    log.error("Skipping classPath '" + classPathUrl + "'", e);
+                    LOG.error("Skipping classPath '" + classPathUrl + "'", e);
                 } catch (IOException e) {
-                    log.error("Skipping classPath '" + classPathUrl + "'", e);
+                    LOG.error("Skipping classPath '" + classPathUrl + "'", e);
                 }
             }
 
@@ -98,10 +98,10 @@ public class ClassUtils {
                     try {
                         theClass = Class.forName(className, false, classLoader);
                     } catch (NoClassDefFoundError e) {
-                        log.error("Skipping class '" + className + "'", e.getMessage());
+                        LOG.error("Skipping class '" + className + "'", e.getMessage());
                         continue;
                     } catch (ClassNotFoundException e) {
-                        log.error("Skipping class '" + className + "'", e.getMessage());
+                        LOG.error("Skipping class '" + className + "'", e.getMessage());
                         continue;
                     }
 

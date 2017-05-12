@@ -21,14 +21,14 @@ package com.hyd.appserver.http;
   */
 
 import com.hyd.appserver.utils.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.apache.mina.core.buffer.IoBuffer;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.filter.codec.ProtocolDecoderOutput;
 import org.apache.mina.filter.codec.demux.MessageDecoder;
 import org.apache.mina.filter.codec.demux.MessageDecoderAdapter;
 import org.apache.mina.filter.codec.demux.MessageDecoderResult;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -47,7 +47,7 @@ import java.util.Map;
  */
 public class HttpRequestDecoder extends MessageDecoderAdapter {
 
-    static final Logger log = LogManager.getLogger(HttpRequestDecoder.class);
+    private static final Logger LOG = LoggerFactory.getLogger(HttpRequestDecoder.class);
 
     private static final byte[] CONTENT_LENGTH = "Content-Length:".getBytes();
 
@@ -72,7 +72,7 @@ public class HttpRequestDecoder extends MessageDecoderAdapter {
                 result = completed ? MessageDecoderResult.OK : MessageDecoderResult.NEED_DATA;
             }
         } catch (Exception ex) {
-            log.error("", ex);
+            LOG.error("", ex);
             result = MessageDecoderResult.NOT_OK;
         }
 
@@ -175,7 +175,7 @@ public class HttpRequestDecoder extends MessageDecoderAdapter {
             request.setData(parseRequest(new StringReader(in.getString(decoder))));
             return request;
         } catch (CharacterCodingException ex) {
-            log.error("", ex);
+            LOG.error("", ex);
         }
 
         return null;
@@ -249,7 +249,7 @@ public class HttpRequestDecoder extends MessageDecoderAdapter {
                 }
             }
         } catch (IOException ex) {
-            log.error("", ex);
+            LOG.error("", ex);
         }
 
         return map;

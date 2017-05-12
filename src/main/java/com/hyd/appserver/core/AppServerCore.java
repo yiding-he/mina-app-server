@@ -7,8 +7,8 @@ import com.hyd.appserver.annotations.Parameter;
 import com.hyd.appserver.utils.ClassUtils;
 import com.hyd.appserver.utils.JsonUtils;
 import com.hyd.appserver.utils.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Modifier;
@@ -26,12 +26,12 @@ import java.util.Map;
 public class AppServerCore {
 
     // 本类使用的 logger
-    private static final Logger log = LogManager.getLogger(AppServerCore.class);
+    private static final Logger LOG = LoggerFactory.getLogger(AppServerCore.class);
 
     // 专用于输入/输出日志的 logger
-    private static final Logger REQUEST_LOGGER = LogManager.getLogger("com.hyd.appserver.log.request");
+    private static final Logger REQUEST_LOGGER = LoggerFactory.getLogger("com.hyd.appserver.log.request");
 
-    private static final Logger RESPONSE_LOGGER = LogManager.getLogger("com.hyd.appserver.log.response");
+    private static final Logger RESPONSE_LOGGER = LoggerFactory.getLogger("com.hyd.appserver.log.response");
 
     private List<Class<Action>> actionClasses = new ArrayList<>();
 
@@ -156,7 +156,7 @@ public class AppServerCore {
         // 特殊命令：shutdown
         if (_request.getFunctionName().equals("__shutdown__")) {
 
-            log.error("Server is shutting down by 'shutdown' command...");
+            LOG.error("Server is shutting down by 'shutdown' command...");
             final AppServerCore core = this;
             core.setEnabled(false);
 
@@ -193,7 +193,7 @@ public class AppServerCore {
 
         /////////////////////////////////////////////////////////
 
-        log.debug("Request: " + JsonUtils.toJson(_request));
+        LOG.debug("Request: " + JsonUtils.toJson(_request));
 
         // request 的内容会被改变（放入参数缺省值），所以必须创建一个副本。
         Request request = Request.clone(_request);
@@ -214,12 +214,12 @@ public class AppServerCore {
             }
 
         } catch (Throwable e) {
-            log.error("服务器错误", e);
+            LOG.error("服务器错误", e);
             response = handleException(e);
         }
 
         response.actionType = type;
-        log.debug("Response: " + JsonUtils.toJson(response));
+        LOG.debug("Response: " + JsonUtils.toJson(response));
 
         actionContext.setResponse(response);    // 处理结果放入上下文
         outputExecutionInfo(actionContext);     // 通过 logger 输出接口调用日志
@@ -237,8 +237,8 @@ public class AppServerCore {
     private void outputExecutionInfo(ActionContext actionContext) {
         long executeTime = actionContext.getExecutionEndMillis() - actionContext.getExecutionStartMillis();
 
-        REQUEST_LOGGER.trace(() -> "request: " + JsonUtils.toJson(actionContext.getRequest()));
-        RESPONSE_LOGGER.trace(() -> "response: " + JsonUtils.toJson(actionContext.getResponse()) + "; time: " + executeTime);
+        REQUEST_LOGGER.trace("request: " + JsonUtils.toJson(actionContext.getRequest()));
+        RESPONSE_LOGGER.trace("response: " + JsonUtils.toJson(actionContext.getResponse()) + "; time: " + executeTime);
     }
 
     // 根据异常信息生成 response
@@ -391,7 +391,7 @@ public class AppServerCore {
                     () -> action.execute(request)).invoke();
 
         } catch (Throwable e) {
-            log.error("Action 执行失败", e);
+            LOG.error("Action 执行失败", e);
             response = Response.fail(e);
         }
 
@@ -472,7 +472,7 @@ public class AppServerCore {
         if (actionClasses.isEmpty()) {
             for (String packageName : typeMappings.getPackages()) {
                 List<Class<Action>> classes = ClassUtils.findClasses(Action.class, packageName);
-                log.debug(() -> "found classes from " + packageName + ": " + classes);
+                LOG.debug("found classes from " + packageName + ": " + classes);
                 actionClasses.addAll(classes);
             }
 

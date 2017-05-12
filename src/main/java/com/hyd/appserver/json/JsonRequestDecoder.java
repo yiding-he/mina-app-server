@@ -2,13 +2,13 @@ package com.hyd.appserver.json;
 
 import com.hyd.appserver.core.ClientInfo;
 import com.hyd.appserver.utils.JsonUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.apache.mina.core.buffer.IoBuffer;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.filter.codec.ProtocolDecoderOutput;
 import org.apache.mina.filter.codec.demux.MessageDecoderAdapter;
 import org.apache.mina.filter.codec.demux.MessageDecoderResult;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.net.InetSocketAddress;
 import java.nio.charset.Charset;
@@ -21,7 +21,7 @@ import java.nio.charset.CharsetDecoder;
  */
 public class JsonRequestDecoder extends MessageDecoderAdapter {
 
-    private static final Logger log = LogManager.getLogger(JsonRequestDecoder.class);
+    private static final Logger LOG = LoggerFactory.getLogger(JsonRequestDecoder.class);
 
     private String status = "ready";
 
@@ -54,13 +54,13 @@ public class JsonRequestDecoder extends MessageDecoderAdapter {
         String[] jsons = str.split("\n+");
 
         for (String json : jsons) {
-            log.debug("Received original json: " + json);
+            LOG.debug("Received original json: " + json);
 
             JsonRequestMessage request;
             try {
                 request = JsonUtils.parseRequest(json);
             } catch (Exception e) {
-                log.error("Error parsing request message", e);
+                LOG.error("Error parsing request message", e);
 
                 request = new JsonRequestMessage();
                 request.setValid(false);

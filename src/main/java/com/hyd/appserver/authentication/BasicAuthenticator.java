@@ -4,8 +4,8 @@ import com.hyd.appserver.Authenticator;
 import com.hyd.appserver.Request;
 import com.hyd.appserver.utils.Base64;
 import com.hyd.appserver.utils.TripleDESUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -17,9 +17,7 @@ import java.util.Map;
  */
 public class BasicAuthenticator implements Authenticator {
 
-    static final Logger log = LogManager.getLogger(BasicAuthenticator.class);
-
-    static final Logger securelog = LogManager.getLogger("com.hyd.appserver.sesure");
+    private static final Logger LOG = LoggerFactory.getLogger(BasicAuthenticator.class);
 
     private Map<String, String> keyMappings = new HashMap<String, String>();
 
@@ -45,7 +43,7 @@ public class BasicAuthenticator implements Authenticator {
         }
 
         String[] parts = name_and_encoded.split("\n");
-        securelog.debug("checkcode=\"" + parts[0] + "\\n" + parts[1] + "\"");
+        LOG.debug("checkcode=\"" + parts[0] + "\\n" + parts[1] + "\"");
         
         String name = parts[0];
 

@@ -5,7 +5,7 @@ package com.hyd.appserver;
  *
  * @author yiding.he
  */
-public abstract interface Action<Q extends Request, R extends Response> {
+public interface Action<Q extends Request, R extends Response> {
 
     R execute(Q request) throws Exception;
 }

@@ -60,8 +60,6 @@ public class MinaAppServer {
 
     private NioSocketAcceptor mainAcceptor;
 
-    private NioSocketAcceptor adminAcceptor;
-
     private Thread shutdownHookThread = new Thread(this::shutdown);
 
     private ContextListener contextListener;
@@ -237,8 +235,6 @@ public class MinaAppServer {
 
             mainAcceptor.setReuseAddress(true);
             mainAcceptor.bind(new InetSocketAddress(configuration.getIp(), configuration.getListenPort()));
-            adminAcceptor.setReuseAddress(true);
-            adminAcceptor.bind(new InetSocketAddress(configuration.getIp(), configuration.getAdminListenPort()));
 
             LOG.info("Mina application server listening at " + configuration.getListenPort() + "...");
             LOG.info("Mina application server started successfully. " +
@@ -260,13 +256,7 @@ public class MinaAppServer {
         mainAcceptor.getSessionConfig().setReadBufferSize(configuration.getBufferSize());
         mainAcceptor.getSessionConfig().setIdleTime(IdleStatus.BOTH_IDLE, configuration.getIdleWaitSeconds());
 
-        adminAcceptor = new NioSocketAcceptor(HTTP_PROCESSOR_POOL_SIZE);
-        adminAcceptor.getFilterChain().addLast("ipWhiteListFilter", new IpWhiteListFilter(configuration.getIpWhiteList(), "http"));
-        adminAcceptor.getFilterChain().addLast("protocolFilter", new ProtocolCodecFilter(createHttpCodecFactory()));
-        adminAcceptor.setHandler(createHttpHandler());
-
         IoServiceMappings.addMappings(mainAcceptor.hashCode(), this);
-        IoServiceMappings.addMappings(adminAcceptor.hashCode(), this);
     }
 
     /**
@@ -301,8 +291,6 @@ public class MinaAppServer {
         core.shutdown();
         mainAcceptor.unbind();
         mainAcceptor.dispose(false);
-        adminAcceptor.unbind();
-        adminAcceptor.dispose(false);
 
         LOG.info("Mina App Server closed successfully. Good bye.\n\n");
         INSTANCES.remove(this);

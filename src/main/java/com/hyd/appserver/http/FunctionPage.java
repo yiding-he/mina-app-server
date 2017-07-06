@@ -5,6 +5,9 @@ import com.hyd.appserver.ActionContext;
 import com.hyd.appserver.annotations.*;
 import com.hyd.appserver.utils.StringUtils;
 
+import java.util.List;
+import java.util.Map;
+
 /**
  * 接口文档页面
  *
@@ -77,7 +80,7 @@ public class FunctionPage {
 
     private Class<Action> actionClass;
 
-    private HttpRequestMessage request;
+    private Map<String, List<String>> parameters;
 
     public String getStackTrace() {
         return stackTrace;
@@ -104,7 +107,10 @@ public class FunctionPage {
     }
 
     public void setRequest(HttpRequestMessage request) {
-        this.request = request;
+    }
+
+    public void setParameters(Map<String, List<String>> parameters) {
+        this.parameters = parameters;
     }
 
     @Override
@@ -187,6 +193,8 @@ public class FunctionPage {
                     "" : ("，缺省值 " + parameter.defaultValue());
 
             if (ActionContext.getContext().getServerConfiguration().isHttpTestEnabled()) {
+                List<String> paramValues = parameters.get(parameter.name());
+                String paramValue = paramValues.isEmpty() ? "" : paramValues.get(0);
                 str += String.format(param_pattern,
                         className,
                         parameter.name(),
@@ -194,7 +202,7 @@ public class FunctionPage {
                         parameter.description(),
                         optionalStr + defaultValueStr,
                         parameter.name(),
-                        StringUtils.defaultIfEmpty(request.getParameter(parameter.name()), "")
+                        StringUtils.defaultIfEmpty(paramValue, "")
                 );
             } else {
                 str += String.format(param_pattern_readonly,

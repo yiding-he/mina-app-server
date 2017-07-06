@@ -13,6 +13,7 @@ import com.hyd.appserver.http.*;
 import com.hyd.appserver.json.*;
 import com.hyd.appserver.snapshot.Snapshot;
 import com.hyd.appserver.utils.MinaUtils;
+import fi.iki.elonen.NanoHTTPD;
 import org.apache.mina.core.service.IoAcceptor;
 import org.apache.mina.core.session.IdleStatus;
 import org.apache.mina.core.session.IoSession;
@@ -59,6 +60,8 @@ public class MinaAppServer {
     private AppServerCore core;
 
     private NioSocketAcceptor mainAcceptor;
+
+    private NanoHttpdServer nanoHttpdServer;
 
     private Thread shutdownHookThread = new Thread(this::shutdown);
 
@@ -257,6 +260,13 @@ public class MinaAppServer {
         mainAcceptor.getSessionConfig().setIdleTime(IdleStatus.BOTH_IDLE, configuration.getIdleWaitSeconds());
 
         IoServiceMappings.addMappings(mainAcceptor.hashCode(), this);
+
+        try {
+            nanoHttpdServer = new NanoHttpdServer(this, configuration.getIp(), configuration.getAdminListenPort());
+            nanoHttpdServer.start(NanoHTTPD.SOCKET_READ_TIMEOUT, false);
+        } catch (IOException e) {
+            throw new AppServerException(e);
+        }
     }
 
     /**

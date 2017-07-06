@@ -3,7 +3,7 @@
 mina-app-server 是一个 Java 的远程调用框架，基于 
 [Apache Mina](http://mina.apache.org/)。它主要用于开发独立的远程调用的服务。
 
-目前的最新版本是 2.0.4-SNAPSHOT
+目前的最新版本是 2.0.4-SNAPSHOT，另外版本 [3.0.0](http://git.oschina.net/yidinghe/mina-app-server/tree/3.0.0/) 已经开发完毕。
 
 2017-04-11 :
 

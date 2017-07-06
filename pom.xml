@@ -14,13 +14,12 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <org.springframework.version>4.3.8.RELEASE</org.springframework.version>
         <commons.pool2.version>2.4.2</commons.pool2.version>
-        <commons.lang3.version>3.5</commons.lang3.version>
-        <fastjson.version>1.2.32</fastjson.version>
+        <commons.lang3.version>3.6</commons.lang3.version>
+        <fastjson.version>1.2.34</fastjson.version>
         <mina.core.version>2.0.16</mina.core.version>
         <junit.version>4.12</junit.version>
-        <log4j.version>2.7</log4j.version>
         <nanohttpd.version>2.3.1</nanohttpd.version>
-        <logback-classic.version>1.2.2</logback-classic.version>
+        <logback-classic.version>1.2.3</logback-classic.version>
         <maven-source-plugin.version>3.0.1</maven-source-plugin.version>
     </properties>
 
@@ -103,10 +102,6 @@
                         </goals>
                     </execution>
                 </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-deploy-plugin</artifactId>
             </plugin>
         </plugins>
     </build>

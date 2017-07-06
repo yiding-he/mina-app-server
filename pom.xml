@@ -108,14 +108,14 @@
 
     <distributionManagement>
         <repository>
-            <id>mynexus</id>
+            <id>heyiding.com</id>
             <name>public</name>
-            <url>http://120.25.145.102:8081/nexus/content/repositories/releases/</url>
+            <url>https://heyiding.com/nexus/content/repositories/releases/</url>
         </repository>
         <snapshotRepository>
-            <id>mynexus</id>
+            <id>heyiding.com</id>
             <name>Snapshots</name>
-            <url>http://120.25.145.102:8081/nexus/content/repositories/snapshots/</url>
+            <url>https://heyiding.com/nexus/content/repositories/snapshots/</url>
         </snapshotRepository>
     </distributionManagement>
 

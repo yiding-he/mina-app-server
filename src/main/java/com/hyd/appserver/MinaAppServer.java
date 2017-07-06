@@ -9,7 +9,7 @@ import com.hyd.appserver.core.interceptors.DefaultExceptionInterceptor;
 import com.hyd.appserver.core.interceptors.HttpTestEnabledInterceptor;
 import com.hyd.appserver.filters.IoPerformanceFilter;
 import com.hyd.appserver.filters.IpWhiteListFilter;
-import com.hyd.appserver.http.*;
+import com.hyd.appserver.http.NanoHttpdServer;
 import com.hyd.appserver.json.*;
 import com.hyd.appserver.snapshot.Snapshot;
 import com.hyd.appserver.utils.MinaUtils;
@@ -17,7 +17,6 @@ import fi.iki.elonen.NanoHTTPD;
 import org.apache.mina.core.service.IoAcceptor;
 import org.apache.mina.core.session.IdleStatus;
 import org.apache.mina.core.session.IoSession;
-import org.apache.mina.filter.codec.ProtocolCodecFactory;
 import org.apache.mina.filter.codec.ProtocolCodecFilter;
 import org.apache.mina.filter.codec.demux.DemuxingProtocolCodecFactory;
 import org.apache.mina.handler.demux.DemuxingIoHandler;
@@ -48,8 +47,6 @@ public class MinaAppServer {
     static final Logger IO_LOG = LoggerFactory.getLogger("java.io.mina.exceptions");
 
     private static final List<MinaAppServer> INSTANCES = new ArrayList<>();
-
-    private static final int HTTP_PROCESSOR_POOL_SIZE = 10;   // HTTP 处理线程池大小
 
     //////////////// 其他成员 ////////////////////
 
@@ -316,15 +313,6 @@ public class MinaAppServer {
         }
     }
 
-    private DemuxingIoHandler createHttpHandler() {
-        DemuxingIoHandler handler = new DemuxingIoHandler();
-        handler.addSentMessageHandler(String.class, MessageHandler.NOOP);
-        handler.addReceivedMessageHandler(HttpRequestMessage.class, new HttpRequestHandler(this));
-        handler.addSentMessageHandler(HttpResponseMessage.class, MessageHandler.NOOP);
-        handler.addExceptionHandler(Throwable.class, new ThrowableExceptionHandler());
-        return handler;
-    }
-
     private DemuxingIoHandler createJsonHandler() {
         DemuxingIoHandler handler = new DemuxingIoHandler();
         handler.addSentMessageHandler(String.class, MessageHandler.NOOP);
@@ -332,13 +320,6 @@ public class MinaAppServer {
         handler.addSentMessageHandler(JsonResponseMessage.class, MessageHandler.NOOP);
         handler.addExceptionHandler(Throwable.class, new ThrowableExceptionHandler());
         return handler;
-    }
-
-    private ProtocolCodecFactory createHttpCodecFactory() {
-        DemuxingProtocolCodecFactory factory = new DemuxingProtocolCodecFactory();
-        factory.addMessageDecoder(HttpRequestDecoder.class);
-        factory.addMessageEncoder(HttpResponseMessage.class, HttpResponseEncoder.class);
-        return factory;
     }
 
     private DemuxingProtocolCodecFactory createJsonCodecFactory() {

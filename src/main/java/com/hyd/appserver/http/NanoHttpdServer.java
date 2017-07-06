@@ -41,9 +41,24 @@ public class NanoHttpdServer extends NanoHTTPD {
         if (uri.equals("")) {
             FunctionListPage page = new FunctionListPage(server.getCore().getActionClasses());
             return newFixedLengthResponse(page.toString());
+
         } else if (uri.equals("status")) {
             ServerStatusPage page = new ServerStatusPage(server.getMainAcceptor(), this.server.getCore());
             return newFixedLengthResponse(page.toString());
+
+        } else if (uri.equals("pool")) {
+            return newFixedLengthResponse(new ProcessorsPage(server.getSnapshot().getSnapshot()).toString());
+
+        } else if (uri.startsWith("pojo/")) {
+            String className = uri.substring("pojo/".length());
+
+            try {
+                Class type = Class.forName(className);
+                return newFixedLengthResponse(new PojoInfoPage(type).toString());
+            } catch (ClassNotFoundException e) {
+                return newFixedLengthResponse("未知类型：" + className);
+            }
+
         } else if (isFunctionCall(uri)) {
             try {
                 Request request = parseRequest(session, uri);
@@ -54,13 +69,14 @@ public class NanoHttpdServer extends NanoHTTPD {
             }
         }
 
-        System.out.println(uri);
-
+        // resources
         String mimeType = "text/html";
         if (uri.endsWith(".css")) {
             mimeType = "text/css";
         } else if (uri.endsWith(".js")) {
             mimeType = "applicaton/javascript";
+        } else if (uri.endsWith(".jpg") || uri.endsWith(".png") || uri.endsWith(".gif")) {
+            mimeType = "image";
         }
 
         return newFixedLengthResponse(Response.Status.OK, mimeType, findContent0(uri));
@@ -186,7 +202,7 @@ public class NanoHttpdServer extends NanoHTTPD {
             context = "index.html";
         }
         String path = "/web/" + context;
-        InputStream is = HttpRequestHandler.class.getResourceAsStream(path);
+        InputStream is = getClass().getResourceAsStream(path);
 
         if (is == null) {
             return null;

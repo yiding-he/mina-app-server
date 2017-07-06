@@ -1,7 +1,6 @@
 package com.hyd.appserver.filters;
 
 import com.hyd.appserver.Response;
-import com.hyd.appserver.http.HttpResponseMessage;
 import com.hyd.appserver.json.JsonResponseMessage;
 import org.apache.mina.core.filterchain.IoFilterAdapter;
 import org.apache.mina.core.future.IoFutureListener;
@@ -55,10 +54,6 @@ public class IpWhiteListFilter extends IoFilterAdapter {
 
         if (protocol.equals("json")) {
             message = new JsonResponseMessage(Response.fail("Access Denied."));
-        } else if (protocol.equals("http")) {
-            HttpResponseMessage resp = new HttpResponseMessage();
-            resp.setResponseCode(500);
-            message = resp;
         } else {
             message = null;
         }

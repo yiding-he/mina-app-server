@@ -106,9 +106,6 @@ public class FunctionPage {
         this.actionClass = actionClass;
     }
 
-    public void setRequest(HttpRequestMessage request) {
-    }
-
     public void setParameters(Map<String, List<String>> parameters) {
         this.parameters = parameters;
     }
@@ -194,7 +191,7 @@ public class FunctionPage {
 
             if (ActionContext.getContext().getServerConfiguration().isHttpTestEnabled()) {
                 List<String> paramValues = parameters.get(parameter.name());
-                String paramValue = paramValues.isEmpty() ? "" : paramValues.get(0);
+                String paramValue = (paramValues == null || paramValues.isEmpty()) ? "" : paramValues.get(0);
                 str += String.format(param_pattern,
                         className,
                         parameter.name(),

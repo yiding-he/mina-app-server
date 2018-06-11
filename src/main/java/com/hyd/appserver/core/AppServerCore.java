@@ -82,6 +82,10 @@ public class AppServerCore {
         return actionFactory;
     }
 
+    public InterceptorChain getInterceptors() {
+        return interceptors;
+    }
+
     /**
      * 设置 Action 对象工厂
      *
@@ -489,11 +493,4 @@ public class AppServerCore {
         InvocationListenerExecutor.shutdown();
     }
 
-    public void addInterceptor(int position, Interceptor interceptor) {
-        this.interceptors.add(position, interceptor);
-    }
-
-    public void addInterceptor(Interceptor interceptor) {
-        this.interceptors.add(interceptor);
-    }
 }

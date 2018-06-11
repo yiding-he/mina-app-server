@@ -14,19 +14,22 @@ import com.hyd.appserver.core.Protocol;
  */
 public class AuthticationInterceptor implements Interceptor {
 
+    private final Authenticator authenticator;
+
+    public AuthticationInterceptor(Authenticator authenticator) {
+        if (authenticator == null) {
+            throw new NullPointerException();
+        }
+        this.authenticator = authenticator;
+    }
+
     @Override
     public Response intercept(ActionInvocation invocation) throws Exception {
 
         // 只对 socket 请求进行鉴权，对 http 请求放过
         if (invocation.getActionContext().getProtocol() == Protocol.Json) {
-
-            Authenticator authenticator =
-                    invocation.getActionContext().getServerConfiguration().getAuthenticator();
-
             Request request = invocation.getActionContext().getRequest();
-            boolean needAuthentication = authenticator != null;
-
-            if (needAuthentication && !authenticator.authenticate(request)) {
+            if (!authenticator.authenticate(request)) {
                 return Response.fail("Authentication failed.");
             }
         }

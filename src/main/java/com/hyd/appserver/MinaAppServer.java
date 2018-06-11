@@ -1,6 +1,7 @@
 package com.hyd.appserver;
 
 import com.hyd.appserver.core.AppServerCore;
+import com.hyd.appserver.core.InterceptorChain;
 import com.hyd.appserver.core.IoServiceMappings;
 import com.hyd.appserver.core.ServerConfiguration;
 import com.hyd.appserver.core.interceptors.AuthticationInterceptor;
@@ -24,6 +25,9 @@ import org.apache.mina.handler.demux.MessageHandler;
 import org.apache.mina.transport.socket.nio.NioSocketAcceptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.NoSuchBeanDefinitionException;
+import org.springframework.context.ApplicationContext;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -51,6 +55,8 @@ public class MinaAppServer {
 
     private ServerConfiguration configuration;
 
+    private ApplicationContext applicationContext;
+
     private AppServerCore core;
 
     private NioSocketAcceptor mainAcceptor;
@@ -62,11 +68,6 @@ public class MinaAppServer {
     private ContextListener contextListener;
 
     private Snapshot snapshot = new Snapshot();
-
-    /**
-     * 其他附加在 MinaAppServer 实例上的属性，例如 Spring 的 ActionContext 就附在上面
-     */
-    private Map<String, Object> properties = new HashMap<>();
 
 
     /**
@@ -82,11 +83,19 @@ public class MinaAppServer {
                 this, configuration.getListenIp(), configuration.getAdminPort());
     }
 
+    public void setApplicationContext(ApplicationContext applicationContext) {
+        this.applicationContext = applicationContext;
+    }
+
     // 设置核心的拦截器
-    private void setupCoreInterceptors() {
-        this.core.addInterceptor(new DefaultExceptionInterceptor());
-        this.core.addInterceptor(new HttpTestEnabledInterceptor());
-        this.core.addInterceptor(new AuthticationInterceptor());
+    private void setupCoreInterceptors(Authenticator authenticator) {
+        InterceptorChain interceptors = this.core.getInterceptors();
+        interceptors.add(new DefaultExceptionInterceptor());
+        interceptors.add(new HttpTestEnabledInterceptor());
+
+        if (authenticator != null) {
+            interceptors.add(new AuthticationInterceptor(authenticator));
+        }
     }
 
     /////////////////////////////////////////
@@ -149,7 +158,7 @@ public class MinaAppServer {
         }
 
         // 初始化 mainAcceptor
-        initAcceptors();
+        configure();
 
         // 程序终止钩子(kill 或 Ctrl+C)
         Runtime.getRuntime().addShutdownHook(shutdownHookThread);
@@ -174,6 +183,23 @@ public class MinaAppServer {
         } catch (Throwable e) {
             shutdown();
             throw new AppServerException(e);
+        }
+    }
+
+    private void configure() {
+        initInterceptors();
+        initAcceptors();
+    }
+
+    private void initInterceptors() {
+        try {
+            MinaAppServerConfigurator configurator = applicationContext.getBean(MinaAppServerConfigurator.class);
+            setupCoreInterceptors(configurator.getAuthenticator());             // core interceptors
+            configurator.configureInterceptors(this.core.getInterceptors());    // user defined interceptors
+        } catch (NoSuchBeanDefinitionException e) {
+            // ignore this
+        } catch (BeansException e) {
+            LOG.error("Unable to get bean MinaAppServerConfigurator: " + e.toString());
         }
     }
 

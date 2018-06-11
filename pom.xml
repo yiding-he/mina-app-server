@@ -12,19 +12,31 @@
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <org.springframework.version>4.3.8.RELEASE</org.springframework.version>
-        <commons.pool2.version>2.4.2</commons.pool2.version>
-        <commons.lang3.version>3.6</commons.lang3.version>
         <fastjson.version>1.2.34</fastjson.version>
         <mina.core.version>2.0.16</mina.core.version>
-        <junit.version>4.12</junit.version>
         <nanohttpd.version>2.3.1</nanohttpd.version>
-        <logback-classic.version>1.2.3</logback-classic.version>
         <maven-source-plugin.version>3.0.1</maven-source-plugin.version>
+        <spring.boot.version>2.0.1.RELEASE</spring.boot.version>
+        <logback-classic.version>1.2.3</logback-classic.version>
+        <commons-pool2.version>2.5.0</commons-pool2.version>
+        <commons-lang3.version>3.7</commons-lang3.version>
+        <junit.version>4.12</junit.version>
     </properties>
 
     <!-- 依赖关系 -->
     <dependencies>
+
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>1.16.20</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-configuration-processor</artifactId>
+            <version>2.0.0.RELEASE</version>
+            <optional>true</optional>
+        </dependency>
 
         <!-- Core -->
         <dependency>
@@ -50,12 +62,12 @@
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-pool2</artifactId>
-            <version>${commons.pool2.version}</version>
+            <version>${commons-pool2.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
-            <version>${commons.lang3.version}</version>
+            <version>${commons-lang3.version}</version>
         </dependency>
         <dependency>
             <groupId>com.alibaba</groupId>
@@ -79,13 +91,11 @@
             <optional>true</optional>
         </dependency>
 
-        <!-- Extra -->
+        <!-- Spring Boot Dependencies -->
         <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-context</artifactId>
-            <version>${org.springframework.version}</version>
-            <scope>compile</scope>
-            <optional>true</optional>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-autoconfigure</artifactId>
+            <version>${spring.boot.version}</version>
         </dependency>
     </dependencies>
 
@@ -110,12 +120,12 @@
         <repository>
             <id>heyiding.com</id>
             <name>public</name>
-            <url>https://heyiding.com/nexus/content/repositories/releases/</url>
+            <url>https://heyiding.com:666/nexus/content/repositories/releases/</url>
         </repository>
         <snapshotRepository>
             <id>heyiding.com</id>
             <name>Snapshots</name>
-            <url>https://heyiding.com/nexus/content/repositories/snapshots/</url>
+            <url>https://heyiding.com:666/nexus/content/repositories/snapshots/</url>
         </snapshotRepository>
     </distributionManagement>
 

@@ -1,9 +1,5 @@
 package com.hyd.appserver.utils.dynamicobj;
 
-import com.hyd.appserver.MinaAppClient;
-import com.hyd.appserver.Request;
-import com.hyd.appserver.Response;
-import demo.pojos.Content;
 import org.junit.Test;
 
 import java.util.Arrays;
@@ -31,15 +27,4 @@ public class DynamicObjectTest {
         User u = user.convert(User.class);
         System.out.println(u);
     }
-
-    @Test
-    public void testContent() throws Exception {
-        MinaAppClient client = new MinaAppClient("192.168.39.241", 8990);
-        Response response = client.send(new Request("FindContent").setParameter("contentKey", "26466"));
-        Content content = response.getObject("content", Content.class);
-        System.out.println(content.getExt());
-        client.close();
-    }
-
-
 }

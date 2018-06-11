@@ -1,6 +1,5 @@
 package com.hyd.appserver;
 
-import com.hyd.appserver.core.ActionFactory;
 import com.hyd.appserver.core.AppServerCore;
 import com.hyd.appserver.core.IoServiceMappings;
 import com.hyd.appserver.core.ServerConfiguration;
@@ -31,16 +30,14 @@ import java.net.InetSocketAddress;
 import java.util.*;
 
 /**
- * 应用服务器端。创建一个 MinaAppServer 实例的最好办法是调用
- * {@link com.hyd.appserver.core.AppServerFactory#createServer(java.util.Properties)}
- * 方法。
+ * 应用服务器端。
  *
  * @author yiding.he
  */
 @SuppressWarnings("unchecked")
 public class MinaAppServer {
 
-    public static final String VERSION_STRING = "2.0";
+    public static final String VERSION_STRING = "3.0";
 
     private static final Logger LOG = LoggerFactory.getLogger(MinaAppServer.class);
 
@@ -71,35 +68,18 @@ public class MinaAppServer {
      */
     private Map<String, Object> properties = new HashMap<>();
 
-    public MinaAppServer(int port) {
-        this(ServerConfiguration.DEFAULT_LISTEN_IP, port, port + 1000, ServerConfiguration.DEFAULT_MAX_PROCESSORS, ServerConfiguration.DEFAULT_IDLE_WAIT);
-    }
-
-    public MinaAppServer(int port, int maxProcessorThreads) {
-        this(ServerConfiguration.DEFAULT_LISTEN_IP, port, port + 1000, maxProcessorThreads, ServerConfiguration.DEFAULT_IDLE_WAIT);
-    }
 
     /**
      * 构造方法
      *
-     * @param port                端口号
-     * @param adminPort           http 管理界面端口号
-     * @param maxProcessorThreads 最大处理线程数
-     * @param idleWaitSeconds     客户端连接空闲超时时间
+     * @param serverConfiguration 服务器配置属性
      */
-    public MinaAppServer(String ip, int port, int adminPort, int maxProcessorThreads, int idleWaitSeconds) {
-        INSTANCES.add(this);
+    public MinaAppServer(ServerConfiguration serverConfiguration) {
+        this.configuration = serverConfiguration;
+        this.core = new AppServerCore(serverConfiguration);
 
-        this.configuration = new ServerConfiguration();
-        this.configuration.setIp(ip);
-        this.configuration.setListenPort(port);
-        this.configuration.setAdminListenPort(adminPort);
-        this.configuration.setMaxProcessorThreads(maxProcessorThreads);
-        this.configuration.setIdleWaitSeconds(idleWaitSeconds);
-
-        this.core = new AppServerCore(configuration);
-
-        setupCoreInterceptors();
+        this.nanoHttpdServer = new NanoHttpdServer(
+                this, configuration.getListenIp(), configuration.getAdminPort());
     }
 
     // 设置核心的拦截器
@@ -107,16 +87,6 @@ public class MinaAppServer {
         this.core.addInterceptor(new DefaultExceptionInterceptor());
         this.core.addInterceptor(new HttpTestEnabledInterceptor());
         this.core.addInterceptor(new AuthticationInterceptor());
-    }
-
-    /////////////////////////////////////////
-
-    public void setProperty(String name, Object value) {
-        this.properties.put(name, value);
-    }
-
-    public <T> T getProperty(String name) {
-        return (T) this.properties.get(name);
     }
 
     /////////////////////////////////////////
@@ -148,50 +118,11 @@ public class MinaAppServer {
         this.configuration.setIpWhiteList(new ArrayList<>(Arrays.asList(ipAddresses)));
     }
 
-    /**
-     * 设置 Action 对象工厂
-     *
-     * @param actionFactory Action 对象工厂
-     */
-    public void setActionFactory(ActionFactory actionFactory) {
-        this.core.setActionFactory(actionFactory);
-    }
-
-    public ActionFactory getActionFactory() {
-        return this.core.getActionFactory();
-    }
-
-    /**
-     * 设置是否允许通过浏览器调用接口。如果不允许浏览器调用接口，浏览器就只能查看接口文档。
-     *
-     * @param httpTestEnabled 是否允许通过浏览器调用接口
-     */
-    public void setHttpTestEnabled(boolean httpTestEnabled) {
-        this.configuration.setHttpTestEnabled(httpTestEnabled);
-    }
-
-    /**
-     * 设置服务器端鉴权。服务器端鉴权的实现必须和客户端一致。
-     *
-     * @param authenticator 服务器端鉴权
-     */
-    public void setAuthenticator(Authenticator authenticator) {
-        this.configuration.setAuthenticator(authenticator);
-    }
-
     public Snapshot getSnapshot() {
         return snapshot;
     }
 
     /////////////////////////////////////////
-
-    public boolean isHttpTestEnabled() {
-        return this.configuration.isHttpTestEnabled();
-    }
-
-    public Authenticator getAuthenticator() {
-        return this.configuration.getAuthenticator();
-    }
 
     public AppServerCore getCore() {
         return core;
@@ -231,14 +162,14 @@ public class MinaAppServer {
 
         // 侦听端口，完成启动
         try {
-            LOG.info("Starting server with ip " + configuration.getIp() + "...");
+            LOG.info("Starting server with ip " + configuration.getListenIp() + "...");
 
             mainAcceptor.setReuseAddress(true);
-            mainAcceptor.bind(new InetSocketAddress(configuration.getIp(), configuration.getListenPort()));
+            mainAcceptor.bind(new InetSocketAddress(configuration.getListenIp(), configuration.getListenPort()));
 
             LOG.info("Mina application server listening at " + configuration.getListenPort() + "...");
             LOG.info("Mina application server started successfully. " +
-                    "Server status: http://[server]:" + configuration.getAdminListenPort());
+                    "Server status: http://[server]:" + configuration.getAdminPort());
             started = true;
         } catch (Throwable e) {
             shutdown();
@@ -247,19 +178,18 @@ public class MinaAppServer {
     }
 
     private void initAcceptors() {
-        mainAcceptor = new NioSocketAcceptor(configuration.getMaxProcessorThreads());
+        mainAcceptor = new NioSocketAcceptor(configuration.getMaxActiveWorkers());
         mainAcceptor.getFilterChain().addLast("logger", MinaUtils.createLoggingFilter());
         mainAcceptor.getFilterChain().addLast("ipWhiteListFilter", new IpWhiteListFilter(configuration.getIpWhiteList(), "json"));
         mainAcceptor.getFilterChain().addLast("protocolFilter", new ProtocolCodecFilter(createJsonCodecFactory()));
         mainAcceptor.getFilterChain().addLast("performanceFilter", new IoPerformanceFilter(this.getSnapshot()));
         mainAcceptor.setHandler(createJsonHandler());
-        mainAcceptor.getSessionConfig().setReadBufferSize(configuration.getBufferSize());
-        mainAcceptor.getSessionConfig().setIdleTime(IdleStatus.BOTH_IDLE, configuration.getIdleWaitSeconds());
+        mainAcceptor.getSessionConfig().setReadBufferSize(configuration.getReadBufferSize());
+        mainAcceptor.getSessionConfig().setIdleTime(IdleStatus.BOTH_IDLE, configuration.getSessionIdleSeconds());
 
         IoServiceMappings.addMappings(mainAcceptor.hashCode(), this);
 
         try {
-            nanoHttpdServer = new NanoHttpdServer(this, configuration.getIp(), configuration.getAdminListenPort());
             nanoHttpdServer.start(NanoHTTPD.SOCKET_READ_TIMEOUT, false);
         } catch (IOException e) {
             throw new AppServerException(e);
@@ -305,7 +235,6 @@ public class MinaAppServer {
 
     /**
      * 关闭所有连接
-     *
      */
     private void closeSessions() {
         for (IoSession session : mainAcceptor.getManagedSessions().values()) {

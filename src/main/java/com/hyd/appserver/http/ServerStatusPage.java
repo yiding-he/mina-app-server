@@ -141,7 +141,7 @@ public class ServerStatusPage {
         Runtime runtime = Runtime.getRuntime();
         statusMap.put("已用内存", convertToMB(runtime.totalMemory() - runtime.freeMemory()) + " MB");
 
-        statusMap.put("处理线程池大小", this.serverCore.getServerConfiguration().getMaxProcessorThreads());
+        statusMap.put("处理线程池大小", this.serverCore.getServerConfiguration().getMaxActiveWorkers());
         statusMap.put("当前连接数", this.ioService.getManagedSessionCount());
 
         IoServiceStatistics stat = this.ioService.getStatistics();

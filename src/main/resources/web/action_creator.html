@@ -5,6 +5,7 @@
     <link rel="stylesheet" href="action_creator.css"/>
     <script type="text/javascript" src="jquery-1.6.js"></script>
     <script type="text/javascript" src="jquery.tmpl.min.js"></script>
+    <script type="text/javascript" src="clipboard.min.js"></script>
 </head>
 <body>
 <div>本页面帮助你生成一个接口的代码和文档。</div>
@@ -12,7 +13,10 @@
     <tr>
         <td style="width:50%" valign="top">
             <h3>Action 名称：</h3>
-            <div class="field"><span class="label">名称：</span><input id="actionName" type="text"></div>
+            <div class="field">
+                <span class="label">类名：</span><input id="className" type="text">
+                <span class="label">路径：</span><input id="path" type="text">
+            </div>
             <div class="field"><span class="label">描述：</span><input id="actionDescription" type="text"></div>
 
             <h3>参数</h3>
@@ -40,8 +44,11 @@
 
         </td>
         <td style="background: #eee; padding: 0 1em 1em;" valign="top">
-            <h3><button id="generateCode">生成代码</button></h3>
-            <div id="code"></div>
+            <h3>
+                <button id="generateCode">生成代码</button>
+                <button id="copyCode" data-clipboard-target="#code">拷贝</button>
+            </h3>
+            <textarea id="code" style="width: 100%; height: 40em; overflow: auto;" readonly></textarea>
         </td>
     </tr>
 </table>
@@ -96,7 +103,7 @@
             return false;
         }
         
-        return this.substring(0, str.length) == str;
+        return this.substring(0, str.length) === str;
     };
     
     String.prototype.endsWith = function(str) {
@@ -104,7 +111,7 @@
             return false;
         }
         
-        return this.substring(this.length - str.length, this.length) == str;
+        return this.substring(this.length - str.length, this.length) === str;
     };
     
     String.prototype.removeEnd = function(str) {
@@ -123,15 +130,18 @@
         $('a.paramDelete,a.propertyDelete').live('click', deleteRow);
         $('#addPageParams').click(addPageParams);
         $('#addPageResultProperties').click(addPageResultProperties);
-        $('.paramType, .propertyType').change(typeChanged);
+        $('.paramType, .propertyType').change(generateCode);
+        new ClipboardJS('#copyCode');
     });
     
     var generateCode = function() {
-        var action_name = $('#actionName').val();
+        var class_name = $('#className').val();
         var action_desc = $('#actionDescription').val();
+        var path = $('#path').val();
         
         var header = "import com.hyd.appserver.*;\nimport com.hyd.appserver.annotations.*;\n";
-        var anno_desc = 'description = "' + action_desc + '"';
+        var anno_path = 'path = "' + path + '"';
+        var anno_desc = ', description = "' + action_desc + '"';
 
         var anno_params = '';
         var param_trs = $('#paramsTable tbody tr');
@@ -146,10 +156,10 @@
                 
                 anno_params += '    @Parameter(name = "' + param_name + 
                         '", type = ' + param_type + 
-                        ', description = "' + param_desc + 
-                        '", required = ' + param_required;
+                        ', description = "' + param_desc +
+                        '"' + (param_required ? (', required = true') : "");
                 
-                if ($.trim(param_default) != '') {
+                if ($.trim(param_default) !== '') {
                     anno_params += ', defaultValue = "' + param_default + '"';
                 }
                 anno_params += '),\n'
@@ -203,21 +213,17 @@
             anno_result += ')'
         }
 
-        var anno = '@Function(' + anno_desc + anno_params + anno_result + ')\n';
+        var anno = '@Function(' + anno_path + anno_desc + anno_params + anno_result + ')\n';
         
-        var class_define = "public class " + action_name + " implements Action {\n\n";
+        var class_define = "public class " + class_name + " implements Action {\n\n";
         class_define += "    public Response execute(Request request) throws Exception {\n";
         class_define += "        return Response.success(); // TODO: 实现这个方法\n";
         class_define += "    }\n";
         class_define += "}\n";
 
-        $('#code').html(html(header + '\n' + anno + class_define));
+        $('#code').val((header + '\n' + anno + class_define));
     };
-    
-    var html = function(str) {
-        return str.replace(/</g, '&lt;').replace(/\n/g, '<br/>').replace(/ /g, '&nbsp;');
-    };
-    
+
     var addParameter = function() {
         $('#paramsTable tbody').append($('#parameterTmpl').tmpl({}));
     };
@@ -232,16 +238,6 @@
 
     var addPageResultProperties = function() {
         var row = $('#propertyTmpl').tmpl({});
-        row.find('.propertyName').val('start');
-        row.find('.propertyType').val('Type.Integer');
-        row.find('.propertyDesc').val('开始位置');
-        $('#resultTable tbody').append(row);
-        row = $('#propertyTmpl').tmpl({});
-        row.find('.propertyName').val('limit');
-        row.find('.propertyType').val('Type.Integer');
-        row.find('.propertyDesc').val('最多返回记录数');
-        $('#resultTable tbody').append(row);
-        row = $('#propertyTmpl').tmpl({});
         row.find('.propertyName').val('total');
         row.find('.propertyType').val('Type.Integer');
         row.find('.propertyDesc').val('总记录数');
@@ -251,18 +247,18 @@
     
     var addPageParams = function() {
         var row = $('#parameterTmpl').tmpl({});
-        row.find('.paramName').val('start');
+        row.find('.paramName').val('pageIndex');
         row.find('.paramType').val('Type.Integer');
         row.find('.paramRequired').get(0).checked = false;
         row.find('.paramDefault').val('0');
-        row.find('.paramDesc').val('开始位置');
+        row.find('.paramDesc').val('页号');
         $('#paramsTable tbody').append(row);
         row = $('#parameterTmpl').tmpl({});
-        row.find('.paramName').val('limit');
+        row.find('.paramName').val('pageSize');
         row.find('.paramType').val('Type.Integer');
         row.find('.paramRequired').get(0).checked = false;
         row.find('.paramDefault').val('10');
-        row.find('.paramDesc').val('最多返回记录数');
+        row.find('.paramDesc').val('页大小');
         $('#paramsTable tbody').append(row);
         return false;
     };

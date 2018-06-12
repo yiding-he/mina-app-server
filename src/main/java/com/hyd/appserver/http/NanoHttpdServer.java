@@ -83,7 +83,7 @@ public class NanoHttpdServer extends NanoHTTPD {
     // 返回接口文档和调用结果
     private String generateFunctionCallResult(Map<String, List<String>> parameters, Request request, com.hyd.appserver.Response response) {
         FunctionPage page = new FunctionPage();
-        page.setTitle("接口 " + request.getFunctionName());
+        page.setTitle("接口 " + request.getFunctionPath());
         page.setRequestText(request.getOriginalString());
         page.setParameters(parameters);
         page.setResponseText(jsonWithoutStacktrace(response));
@@ -111,9 +111,9 @@ public class NanoHttpdServer extends NanoHTTPD {
         }
 
         Request request = new Request();
-        request.setFunctionName(uri);
+        request.setFunctionPath(uri.substring("functions".length()));
 
-        Class<? extends Action> actionClass = this.server.getCore().getTypeMappings().find(request.getFunctionName());
+        Class<? extends Action> actionClass = this.server.getCore().getTypeMappings().find(request.getFunctionPath());
         Function function = AnnotationUtils.getFunction(actionClass);
 
         Parameter[] funcParams = function == null ? new Parameter[]{} : function.parameters();
@@ -180,10 +180,7 @@ public class NanoHttpdServer extends NanoHTTPD {
     }
 
     private boolean isFunctionCall(String context) {
-        if (context.contains("?")) {
-            context = context.substring(0, context.indexOf("?"));
-        }
-        return context.matches("^[a-zA-Z0-9_]+$");
+        return context.startsWith("functions/");
     }
 
     // 返回其他资源内容

@@ -20,11 +20,7 @@ Mina-App-Server 将成为一个基于 Spring Boot 的框架！
 
   * 更新 Apache Mina、fastjson 等依赖关系的版本到最新；
   * 引入 [NanoHTTP](https://github.com/NanoHttpd/nanohttpd) 作为管理界面服务器。
-  
-开发计划：
 
-  * 下一个大版本将完全依赖 Spring。
+详细信息请参考源码目录下的 tutorials 目录。
 
-详细信息请参考 [wiki](http://git.oschina.net/yidinghe/mina-app-server/wikis/home)。
-
-本项目源代码托管的唯一地址是开源中国 git@osc，如果有什么疑问或 BUG 报告，请尽管在这里的 [Issues](http://git.oschina.net/yidinghe/mina-app-server/issues) 中讨论和提交。
+本项目源代码托管的唯一地址是开源中国 git@osc，如果有什么疑问或 BUG 报告，请在 [Issues](http://gitee.com/yidinghe/mina-app-server/issues) 中讨论和提交。

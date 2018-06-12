@@ -21,7 +21,7 @@ import java.util.Map;
 @SuppressWarnings("UnusedDeclaration")
 public class Request implements Serializable {
 
-    private String functionName;        // 接口名
+    private String functionPath;        // 接口名
 
     private Map<String, String[]> parameters = new HashMap<String, String[]>();     // 接口特有参数
 
@@ -42,8 +42,8 @@ public class Request implements Serializable {
      */
     public static Request clone(Request request) {
         Request clone = new Request();
-        clone.functionName = request.functionName;
-        clone.parameters = new HashMap<String, String[]>(request.parameters);
+        clone.functionPath = request.functionPath;
+        clone.parameters = new HashMap<>(request.parameters);
         clone.clientInfo = request.clientInfo;
         clone.timestamp = request.timestamp;
         clone.checkCode = request.checkCode;
@@ -56,8 +56,8 @@ public class Request implements Serializable {
     public Request() {
     }
 
-    public Request(String functionName) {
-        this.functionName = functionName;
+    public Request(String functionPath) {
+        this.functionPath = functionPath;
     }
 
     public String getOriginalString() {
@@ -76,12 +76,12 @@ public class Request implements Serializable {
         this.clientInfo = clientInfo;
     }
 
-    public String getFunctionName() {
-        return functionName;
+    public String getFunctionPath() {
+        return functionPath;
     }
 
-    public Request setFunctionName(String functionName) {
-        this.functionName = functionName;
+    public Request setFunctionPath(String functionPath) {
+        this.functionPath = functionPath;
         return this;
     }
 
@@ -150,7 +150,7 @@ public class Request implements Serializable {
     @Override
     public String toString() {
         return "Request{" +
-                "functionName='" + functionName + '\'' +
+                "functionPath='" + functionPath + '\'' +
                 ", parameters=" + parameterToString() +
                 ", timestamp='" + timestamp + '\'' +
                 ", checkCode='" + checkCode + '\'' +

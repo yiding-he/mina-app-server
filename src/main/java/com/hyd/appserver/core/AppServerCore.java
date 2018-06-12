@@ -150,7 +150,7 @@ public class AppServerCore {
         /////////////////////////////////////////////////////////
 
         // 特殊命令：shutdown
-        if (_request.getFunctionName().equals("__shutdown__")) {
+        if (_request.getFunctionPath().equals("__shutdown__")) {
 
             LOG.error("Server is shutting down by 'shutdown' command...");
             final AppServerCore core = this;
@@ -172,7 +172,7 @@ public class AppServerCore {
         }
 
         // 特殊命令：snapshot
-        if (_request.getFunctionName().equals("__snapshot__")) {
+        if (_request.getFunctionPath().equals("__snapshot__")) {
 
             MinaAppServer server = MinaAppServer.getInstance(this);
             if (server == null) {
@@ -196,7 +196,7 @@ public class AppServerCore {
         actionContext.setRequest(request);
 
         // 处理请求
-        String functionPath = request.getFunctionName();
+        String functionPath = request.getFunctionPath();
         Class<? extends Action> type = typeMappings.find(functionPath);
         Response response;
 
@@ -340,7 +340,7 @@ public class AppServerCore {
             return;
         }
 
-        this.serverStatistics.addExecutionData(actionContext.getRequest().getFunctionName(), end - start);
+        this.serverStatistics.addExecutionData(actionContext.getRequest().getFunctionPath(), end - start);
     }
 
     /**

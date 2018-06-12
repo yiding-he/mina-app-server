@@ -60,7 +60,8 @@ public class FunctionListPage {
                 Function function = AnnotationUtils.getFunction(aClass);
                 String desc = function == null ? "" : function.description();
                 String fullPath = actionBean.getFullFunctionPath();
-                result += String.format(function_pattern, StringUtils.encodeUrl(fullPath), fullPath, desc);
+                String linkUrl = "functions" + StringUtils.encodeUrl(fullPath);
+                result += String.format(function_pattern, linkUrl, fullPath, desc);
             }
         }
 

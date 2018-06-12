@@ -54,7 +54,7 @@ public class BasicAuthenticator implements Authenticator {
         try {
             byte[] encoded = Base64.decode(parts[1]);
             String _text = TripleDESUtils.decrypt(this.keyMappings.get(name), encoded);
-            String text = request.getTimestamp() + "|" + request.getFunctionName() + "|" + name;
+            String text = request.getTimestamp() + "|" + request.getFunctionPath() + "|" + name;
 
             return text.equals(_text);  // 比较解密后的字符串
         } catch (Exception e) {

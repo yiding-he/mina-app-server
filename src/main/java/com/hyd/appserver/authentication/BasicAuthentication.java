@@ -27,7 +27,7 @@ public class BasicAuthentication implements Authentication {
 
     @Override
     public String generateCheckCode(Request request) {
-        return generateCheckCode(request.getFunctionName(), request.getTimestamp());
+        return generateCheckCode(request.getFunctionPath(), request.getTimestamp());
     }
 
     public String generateCheckCode(String functionName, String timeStamp) {

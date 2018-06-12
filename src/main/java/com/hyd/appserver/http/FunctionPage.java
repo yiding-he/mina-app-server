@@ -29,7 +29,7 @@ public class FunctionPage {
             "<div class=\"result\"><strong>调用结果</strong><br/>%s</div>" +
             "%s" +
             "<div class=\"description\">" +
-            "  <div class=\"field\"><div class=\"label\">名称</div>" +
+            "  <div class=\"field\"><div class=\"label\">路径</div>" +
             "    <div class=\"fieldvalue functionname\"><code><strong>%s</strong></code></div>" +
             "  </div>" +
             "  <div class=\"field\"><div class=\"label\">描述</div><div class=\"fieldvalue\">%s</div></div>" +
@@ -161,7 +161,7 @@ public class FunctionPage {
         if (parameterStr.length() == 0) {
             return "";
         } else {
-            return String.format(param_form_pattern, actionName, parameterStr);
+            return String.format(param_form_pattern, StringUtils.encodeUrl("functions" + actionName), parameterStr);
         }
     }
 
@@ -221,7 +221,8 @@ public class FunctionPage {
             return "";
         }
 
-        return this.actionClass.getSimpleName();
+        Function function = AnnotationUtils.getFunction(this.actionClass);
+        return function.path();
     }
 
     private String getDescription() {
@@ -229,8 +230,8 @@ public class FunctionPage {
             return "";
         }
 
-        Function annotation = AnnotationUtils.getFunction(this.actionClass);
-        return annotation == null ? "" : annotation.description();
+        Function function = AnnotationUtils.getFunction(this.actionClass);
+        return function.description();
     }
 
     private String getResultStr() {

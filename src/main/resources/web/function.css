@@ -1,9 +1,10 @@
-body, input, button, select, div.result {
+body, input, button, select, .result {
     font-size: 10pt;
     font-family: monospace, 'Microsoft Yahei', sans-serif;
 }
 
 .result {
+    font-family: Consolas, "Courier New", "Source Code Pro", monospace;
     background-color: #eee;
     border: 1px solid #ddd;
     border-radius: 2px;
@@ -11,6 +12,7 @@ body, input, button, select, div.result {
     margin-bottom: 5px;
     max-height: 500px;
     overflow-y: auto;
+    line-height: 150%;
 }
 
 .field {

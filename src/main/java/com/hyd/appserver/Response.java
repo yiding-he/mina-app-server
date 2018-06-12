@@ -364,5 +364,5 @@ public class Response implements Serializable {
 
     /////////////////////////////////////////
 
-    public transient Class<Action> actionType;
+    public transient Class<? extends Action> actionType;
 }

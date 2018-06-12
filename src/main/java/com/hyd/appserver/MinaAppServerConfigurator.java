@@ -11,6 +11,10 @@ public interface MinaAppServerConfigurator {
         return null;
     }
 
+    default InvocationListener getInvocationListener() {
+        return null;
+    }
+
     default void configureInterceptors(InterceptorChain interceptors) {
 
     }

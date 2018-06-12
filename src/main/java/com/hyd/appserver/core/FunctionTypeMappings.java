@@ -1,19 +1,11 @@
 package com.hyd.appserver.core;
 
 /**
- * (description)
+ * 根据功能路径查询合适的处理 Action 类
  *
  * @author yiding.he
  */
 public interface FunctionTypeMappings<T> {
 
-    void setPackages(String[] packages);
-
-    String[] getPackages();
-
-    boolean addPackage(String aPackage);
-
-    boolean removePackage(String aPackage);
-
-    Class<T> find(String className);
+    Class<? extends T> find(String functionPath);
 }

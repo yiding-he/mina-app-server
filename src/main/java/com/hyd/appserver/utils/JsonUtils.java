@@ -6,8 +6,8 @@ import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.serializer.SerializeConfig;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.alibaba.fastjson.serializer.SimpleDateFormatSerializer;
-import com.hyd.appserver.core.ClientInfo;
 import com.hyd.appserver.Response;
+import com.hyd.appserver.core.ClientInfo;
 import com.hyd.appserver.json.JsonRequestMessage;
 import com.hyd.appserver.utils.dynamicobj.DynamicObject;
 
@@ -38,6 +38,8 @@ public class JsonUtils {
         JsonRequestMessage request = new JsonRequestMessage();
 
         request.setFunctionName(jsonObject.getString("functionName"));
+        request.setCheckCode(jsonObject.getString("checkCode"));
+        request.setTimestamp(jsonObject.getString("timestamp"));
 
         if (jsonObject.containsKey("parameters")) {
 

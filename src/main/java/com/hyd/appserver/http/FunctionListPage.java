@@ -3,9 +3,8 @@ package com.hyd.appserver.http;
 import com.hyd.appserver.Action;
 import com.hyd.appserver.annotations.AnnotationUtils;
 import com.hyd.appserver.annotations.Function;
+import com.hyd.appserver.utils.StringUtils;
 
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -29,6 +28,7 @@ public class FunctionListPage {
             "    <a href=\"action_creator.html\">创建 Action</a>" +
             "    <a href=\"status\">服务器状态</a>" +
             "    <a href=\"pool\">线程池状态</a>" +
+            "    <a href=\"about.html\">关于</a>" +
             "  </div>" +
             "  </div>" +
             "  <div class=\"functions\">%s</div>" +
@@ -39,20 +39,11 @@ public class FunctionListPage {
             "<div class=\"description\">%s</div>" +
             "</div>";
 
-    private List<Class<Action>> actionClasses;
+    private final List<Action> actionBeans;
 
-    public FunctionListPage(List<Class<Action>> actionClasses) {
-        this.actionClasses = actionClasses;
-        sortFunctionNames();
-    }
-
-    private void sortFunctionNames() {
-        Collections.sort(this.actionClasses, new Comparator<Class<Action>>() {
-            @Override
-            public int compare(Class<Action> o1, Class<Action> o2) {
-                return o1.getSimpleName().compareTo(o2.getSimpleName());
-            }
-        });
+    // 构造方法
+    public FunctionListPage(List<Action> actionBeans) {
+        this.actionBeans = actionBeans;
     }
 
     @Override
@@ -63,11 +54,13 @@ public class FunctionListPage {
     private String getFunctionListStr() {
         String result = "";
 
-        synchronized (actionClasses) {
-            for (Class<Action> aClass : actionClasses) {
+        synchronized (actionBeans) {
+            for (Action actionBean : actionBeans) {
+                Class<? extends Action> aClass = actionBean.getClass();
                 Function function = AnnotationUtils.getFunction(aClass);
                 String desc = function == null ? "" : function.description();
-                result += String.format(function_pattern, aClass.getSimpleName(), aClass.getSimpleName(), desc);
+                String fullPath = actionBean.getFullFunctionPath();
+                result += String.format(function_pattern, StringUtils.encodeUrl(fullPath), fullPath, desc);
             }
         }
 

@@ -247,16 +247,13 @@ public class MinaAppClient implements Closeable {
                       final Object[] messages, final int timeout) {
         final ReadFuture readFuture = session.read();
 
-        Runnable runnable = new Runnable() {
-
-            public void run() {
-                try {
-                    readFuture.await(timeout);
-                    messages[0] = readFuture.getMessage();
-                } catch (InterruptedException e) {
-                    LOG.error("请求服务器" + session.getRemoteAddress() + "超时[" + functionName + "]:" + e.toString());
-                    session.closeNow();
-                }
+        Runnable runnable = () -> {
+            try {
+                readFuture.await(timeout);
+                messages[0] = readFuture.getMessage();
+            } catch (InterruptedException e) {
+                LOG.error("请求服务器" + session.getRemoteAddress() + "超时[" + functionName + "]:" + e.toString());
+                session.closeNow();
             }
         };
 

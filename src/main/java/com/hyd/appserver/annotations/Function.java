@@ -1,5 +1,7 @@
 package com.hyd.appserver.annotations;
 
+import org.springframework.stereotype.Component;
+
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -12,10 +14,14 @@ import java.lang.annotation.Target;
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
+@Component
 public @interface Function {
 
+    // 接口访问路径
+    String value();
+
     // 接口描述
-    String description();
+    String description() default "";
 
     // 接口参数
     Parameter[] parameters() default {};

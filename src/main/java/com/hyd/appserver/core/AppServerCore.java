@@ -4,7 +4,6 @@ import com.hyd.appserver.*;
 import com.hyd.appserver.annotations.AnnotationUtils;
 import com.hyd.appserver.annotations.Function;
 import com.hyd.appserver.annotations.Parameter;
-import com.hyd.appserver.utils.ClassUtils;
 import com.hyd.appserver.utils.JsonUtils;
 import com.hyd.appserver.utils.StringUtils;
 import org.slf4j.Logger;
@@ -33,22 +32,20 @@ public class AppServerCore {
 
     private static final Logger RESPONSE_LOGGER = LoggerFactory.getLogger("com.hyd.appserver.log.response");
 
-    private List<Class<Action>> actionClasses = new ArrayList<>();
-
     /**
      * 缓存“类型-接口名”匹配关系
      */
-    private FunctionTypeMappings<Action> typeMappings = new DefaultFunctionTypeMappings<>();
+    private FunctionTypeMappings<Action> typeMappings;
 
     /**
      * Action 工厂
      */
-    private ActionFactory actionFactory = new DefaultActionFactory();
+    private ActionFactory actionFactory;
 
     /**
      * 自定义日志处理
      */
-    private InvocationListener invocationListener = null;
+    private InvocationListener invocationListener;
 
     /**
      * 拦截器
@@ -86,6 +83,10 @@ public class AppServerCore {
         return interceptors;
     }
 
+    public void setTypeMappings(FunctionTypeMappings<Action> typeMappings) {
+        this.typeMappings = typeMappings;
+    }
+
     /**
      * 设置 Action 对象工厂
      *
@@ -109,15 +110,6 @@ public class AppServerCore {
 
     public ServerConfiguration getServerConfiguration() {
         return serverConfiguration;
-    }
-
-    /**
-     * 设置 Action 类所在的包
-     *
-     * @param packages Action 类所在的包
-     */
-    public void setPackages(String[] packages) {
-        this.typeMappings.setPackages(packages);
     }
 
     /**
@@ -204,13 +196,13 @@ public class AppServerCore {
         actionContext.setRequest(request);
 
         // 处理请求
-        String className = request.getFunctionName();
-        Class<Action> type = findClass(className);
+        String functionPath = request.getFunctionName();
+        Class<? extends Action> type = typeMappings.find(functionPath);
         Response response;
 
         try {
             if (type == null) {
-                response = Response.fail("(未知的接口'" + className + "')");
+                response = Response.fail("(未知的接口'" + functionPath + "')");
 
             } else {
                 request = setupDefaultParameters(request, type);
@@ -265,7 +257,7 @@ public class AppServerCore {
      *
      * @return request
      */
-    private Request setupDefaultParameters(Request request, Class<Action> type) {
+    private Request setupDefaultParameters(Request request, Class<? extends Action> type) {
         Function function = AnnotationUtils.getFunction(type);
 
         if (function == null) {
@@ -309,7 +301,7 @@ public class AppServerCore {
      *
      * @return 处理结果
      */
-    private Response process0(Request request, Class<Action> type) {
+    private Response process0(Request request, Class<? extends Action> type) {
         ActionContext actionContext = ActionContext.getContext();
 
         Response response;
@@ -456,38 +448,6 @@ public class AppServerCore {
     }
 
     /////////////////////////////////////////
-
-    // 根据类名查找 Action 类
-    private Class<Action> findClass(String className) {
-        return typeMappings.find(className);
-    }
-
-    /**
-     * 列出所有的 Action 类
-     *
-     * @return 所有的 Action 类
-     */
-    public List<Class<Action>> getActionClasses() {
-
-        if (typeMappings.getPackages() == null) {
-            return Collections.emptyList();
-        }
-
-        if (actionClasses.isEmpty()) {
-            for (String packageName : typeMappings.getPackages()) {
-                List<Class<Action>> classes = ClassUtils.findClasses(Action.class, packageName);
-                LOG.debug("found classes from " + packageName + ": " + classes);
-                actionClasses.addAll(classes);
-            }
-
-            // 不列出接口和抽象类
-            actionClasses.removeIf(type -> type.isInterface() || Modifier.isAbstract(type.getModifiers()));
-        }
-
-        actionClasses.removeAll(Collections.singleton((Class<Action>) null));
-
-        return actionClasses;
-    }
 
     public void shutdown() {
         InvocationListenerExecutor.shutdown();

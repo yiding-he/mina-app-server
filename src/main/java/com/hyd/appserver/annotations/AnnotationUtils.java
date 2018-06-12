@@ -6,7 +6,10 @@ import com.hyd.appserver.utils.StringUtils;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * 用于获取 Action 类的 Function 注解。注意：真正的 Action 注解是 Action
@@ -131,6 +134,13 @@ public class AnnotationUtils {
         return new Function() {
 
             @Override
+            public String value() {
+                String superPath = getFunctionPath(superFunction);
+                String subPath = getFunctionPath(subFunction);
+                return (StringUtils.isBlank(superPath)? "": (superPath + "/")) + subPath;
+            }
+
+            @Override
             public String description() {
                 return description;
             }
@@ -150,6 +160,14 @@ public class AnnotationUtils {
                 return subFunction.annotationType();
             }
         };
+    }
+
+    private static String getFunctionPath(Function f) {
+        if (f == null) {
+            return "";
+        }
+
+        return StringUtils.removeEnd(StringUtils.removeStart(f.value(), "/"), "/");
     }
 
     private static Result mergeResult(Result superResult, final Result subResult) {

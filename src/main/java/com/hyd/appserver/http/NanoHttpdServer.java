@@ -10,12 +10,10 @@ import com.hyd.appserver.annotations.Parameter;
 import com.hyd.appserver.annotations.Type;
 import com.hyd.appserver.core.ClientInfo;
 import com.hyd.appserver.core.Protocol;
-import com.hyd.appserver.utils.IOUtils;
 import com.hyd.appserver.utils.JsonUtils;
 import com.hyd.appserver.utils.StringUtils;
 import fi.iki.elonen.NanoHTTPD;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Date;
@@ -39,7 +37,7 @@ public class NanoHttpdServer extends NanoHTTPD {
         String uri = session.getUri().substring(1);
 
         if (uri.equals("")) {
-            FunctionListPage page = new FunctionListPage(server.getCore().getActionClasses());
+            FunctionListPage page = new FunctionListPage(server.getActionBeans());
             return newFixedLengthResponse(page.toString());
 
         } else if (uri.equals("status")) {
@@ -75,11 +73,11 @@ public class NanoHttpdServer extends NanoHTTPD {
             mimeType = "text/css";
         } else if (uri.endsWith(".js")) {
             mimeType = "applicaton/javascript";
-        } else if (uri.endsWith(".jpg") || uri.endsWith(".png") || uri.endsWith(".gif")) {
+        } else if (uri.endsWith(".jpg") || uri.endsWith(".png") || uri.endsWith(".gif") || uri.endsWith(".ico")) {
             mimeType = "image";
         }
 
-        return newFixedLengthResponse(Response.Status.OK, mimeType, findContent0(uri));
+        return newChunkedResponse(Response.Status.OK, mimeType, readResourceAsStream(uri));
     }
 
     // 返回接口文档和调用结果
@@ -115,7 +113,7 @@ public class NanoHttpdServer extends NanoHTTPD {
         Request request = new Request();
         request.setFunctionName(uri);
 
-        Class<Action> actionClass = this.server.getCore().getTypeMappings().find(request.getFunctionName());
+        Class<? extends Action> actionClass = this.server.getCore().getTypeMappings().find(request.getFunctionName());
         Function function = AnnotationUtils.getFunction(actionClass);
 
         Parameter[] funcParams = function == null ? new Parameter[]{} : function.parameters();
@@ -188,28 +186,15 @@ public class NanoHttpdServer extends NanoHTTPD {
         return context.matches("^[a-zA-Z0-9_]+$");
     }
 
-    private String findContent0(String context) {
-        try {
-            return new String(findContent(context), "UTF-8");
-        } catch (IOException e) {
-            throw new AppServerException(e);
-        }
-    }
-
     // 返回其他资源内容
-    private byte[] findContent(String context) throws IOException {
+    private InputStream readResourceAsStream(String context) {
         if (StringUtils.isEmpty(context)) {
             context = "index.html";
         }
         String path = "/web/" + context;
-        InputStream is = getClass().getResourceAsStream(path);
-
-        if (is == null) {
-            return null;
-        } else {
-            return IOUtils.readStreamAndClose(is);
-        }
+        return getClass().getResourceAsStream(path);
     }
+
     private Double[] parseDecimalArray(String parameterValue) {
         String[] strValues = parameterValue.split(",");
         Double[] values = new Double[strValues.length];

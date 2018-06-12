@@ -1,9 +1,6 @@
 package com.hyd.appserver;
 
-import com.hyd.appserver.core.AppServerCore;
-import com.hyd.appserver.core.InterceptorChain;
-import com.hyd.appserver.core.IoServiceMappings;
-import com.hyd.appserver.core.ServerConfiguration;
+import com.hyd.appserver.core.*;
 import com.hyd.appserver.core.interceptors.AuthticationInterceptor;
 import com.hyd.appserver.core.interceptors.DefaultExceptionInterceptor;
 import com.hyd.appserver.core.interceptors.HttpTestEnabledInterceptor;
@@ -31,7 +28,10 @@ import org.springframework.context.ApplicationContext;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
 /**
  * 应用服务器端。
@@ -85,6 +85,7 @@ public class MinaAppServer {
 
     public void setApplicationContext(ApplicationContext applicationContext) {
         this.applicationContext = applicationContext;
+        this.core.setActionFactory(new SpringActionFactory(applicationContext));
     }
 
     // 设置核心的拦截器
@@ -107,24 +108,6 @@ public class MinaAppServer {
      */
     public void setInvocationListener(InvocationListener invocationListener) {
         this.core.setInvocationListener(invocationListener);
-    }
-
-    /**
-     * 设置 Action 包路径
-     *
-     * @param packages Action 包路径，可以有多个
-     */
-    public void setActionPackages(String... packages) {
-        this.core.setPackages(packages);
-    }
-
-    /**
-     * 设置 IP 白名单，缺省不限制客户端 IP
-     *
-     * @param ipAddresses 白名单 IP 地址
-     */
-    public void setIpWhiteList(String... ipAddresses) {
-        this.configuration.setIpWhiteList(new ArrayList<>(Arrays.asList(ipAddresses)));
     }
 
     public Snapshot getSnapshot() {
@@ -189,13 +172,24 @@ public class MinaAppServer {
     private void configure() {
         initInterceptors();
         initAcceptors();
+        initFunctionTypeMappings();
+    }
+
+    private void initFunctionTypeMappings() {
+        this.core.setTypeMappings(new SpringFunctionTypeMappings(applicationContext));
     }
 
     private void initInterceptors() {
+
+        if (applicationContext == null) {
+            return;
+        }
+
         try {
             MinaAppServerConfigurator configurator = applicationContext.getBean(MinaAppServerConfigurator.class);
             setupCoreInterceptors(configurator.getAuthenticator());             // core interceptors
             configurator.configureInterceptors(this.core.getInterceptors());    // user defined interceptors
+            this.setInvocationListener(configurator.getInvocationListener());
         } catch (NoSuchBeanDefinitionException e) {
             // ignore this
         } catch (BeansException e) {
@@ -313,6 +307,17 @@ public class MinaAppServer {
      */
     public void setContextListener(ContextListener contextListener) {
         this.contextListener = contextListener;
+    }
+
+    public List<Action> getActionBeans() {
+
+        if (this.applicationContext == null) {
+            return Collections.emptyList();
+        }
+
+        ArrayList<Action> actions = new ArrayList<>(this.applicationContext.getBeansOfType(Action.class).values());
+        actions.sort(Comparator.comparing(Action::getFullFunctionPath));
+        return actions;
     }
 
     private static class ThrowableExceptionHandler implements ExceptionHandler<Throwable> {

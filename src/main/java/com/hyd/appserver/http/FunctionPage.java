@@ -78,7 +78,7 @@ public class FunctionPage {
 
     private String requestText;
 
-    private Class<Action> actionClass;
+    private Class<? extends Action> actionClass;
 
     private Map<String, List<String>> parameters;
 
@@ -102,7 +102,7 @@ public class FunctionPage {
         this.requestText = requestText;
     }
 
-    public void setActionClass(Class<Action> actionClass) {
+    public void setActionClass(Class<? extends Action> actionClass) {
         this.actionClass = actionClass;
     }
 

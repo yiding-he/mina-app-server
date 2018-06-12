@@ -2,6 +2,7 @@ package com.hyd.appserver.utils;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -18,6 +19,18 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
 
     public static String defaultIfEmpty(String string, String defaultValue) {
         return isEmpty(string) ? defaultValue : string;
+    }
+
+    public static String encodeUrl(String s) {
+        if (isEmpty(s)) {
+            return s;
+        }
+
+        try {
+            return URLEncoder.encode(s, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            return s;
+        }
     }
 
     public static String decodeUrl(String string) {
@@ -51,4 +64,5 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
         return str.replace("<", "&lt;").replace(">", "&gt;")
                 .replace("\t", "    ").replace(" ", "&nbsp;").replace("\n", "<br/>");
     }
+
 }

@@ -13,7 +13,7 @@
         <maven.compiler.target>1.8</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <fastjson.version>1.2.34</fastjson.version>
-        <mina.core.version>2.0.16</mina.core.version>
+        <mina.core.version>2.0.18</mina.core.version>
         <nanohttpd.version>2.3.1</nanohttpd.version>
         <maven-source-plugin.version>3.0.1</maven-source-plugin.version>
         <spring.boot.version>2.0.1.RELEASE</spring.boot.version>
@@ -21,6 +21,7 @@
         <commons-pool2.version>2.5.0</commons-pool2.version>
         <commons-lang3.version>3.7</commons-lang3.version>
         <junit.version>4.12</junit.version>
+        <mina-filter-compression.version>2.0.18</mina-filter-compression.version>
     </properties>
 
     <!-- 依赖关系 -->

@@ -113,8 +113,7 @@ public class IoSessionPool {
         }
 
         connector.getFilterChain().addLast("logger", MinaUtils.createLoggingFilter());
-        connector.getFilterChain().addLast("codec",
-                new ProtocolCodecFilter(createTextLineCodecFactory()));
+        connector.getFilterChain().addLast("codec", new ProtocolCodecFilter(createTextLineCodecFactory()));
     }
 
     private TextLineCodecFactory createTextLineCodecFactory() {

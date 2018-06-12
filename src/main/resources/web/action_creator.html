@@ -157,7 +157,7 @@
                 anno_params += '    @Parameter(name = "' + param_name + 
                         '", type = ' + param_type + 
                         ', description = "' + param_desc +
-                        '"' + (param_required ? (', required = true') : "");
+                        '"' + (param_required ? '' : ", required = false");
                 
                 if ($.trim(param_default) !== '') {
                     anno_params += ', defaultValue = "' + param_default + '"';

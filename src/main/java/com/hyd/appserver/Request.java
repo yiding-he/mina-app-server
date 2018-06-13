@@ -23,6 +23,8 @@ public class Request implements Serializable {
 
     private String functionPath;        // 接口名
 
+    private String functionName;        // 接口名（旧）
+
     private Map<String, String[]> parameters = new HashMap<String, String[]>();     // 接口特有参数
 
     private String timestamp;           // 时间戳，仅当发送的时候赋值
@@ -42,7 +44,8 @@ public class Request implements Serializable {
      */
     public static Request clone(Request request) {
         Request clone = new Request();
-        clone.functionPath = request.functionPath;
+        clone.functionPath = StringUtils.defaultIfEmpty(request.functionPath, request.functionName);
+        clone.functionName = StringUtils.defaultIfEmpty(request.functionPath, request.functionName);
         clone.parameters = new HashMap<>(request.parameters);
         clone.clientInfo = request.clientInfo;
         clone.timestamp = request.timestamp;
@@ -58,6 +61,7 @@ public class Request implements Serializable {
 
     public Request(String functionPath) {
         this.functionPath = functionPath;
+        this.functionName = functionPath;
     }
 
     public String getOriginalString() {
@@ -82,6 +86,7 @@ public class Request implements Serializable {
 
     public Request setFunctionPath(String functionPath) {
         this.functionPath = functionPath;
+        this.functionName = functionPath;
         return this;
     }
 
@@ -99,6 +104,14 @@ public class Request implements Serializable {
 
     public void setTimestamp(String timestamp) {
         this.timestamp = timestamp;
+    }
+
+    public String getFunctionName() {
+        return functionName;
+    }
+
+    public void setFunctionName(String functionName) {
+        this.functionName = functionName;
     }
 
     public Request setParameter(String key, String... value) {

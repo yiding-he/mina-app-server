@@ -18,7 +18,7 @@ import java.lang.annotation.Target;
 public @interface Function {
 
     // 接口访问路径
-    String path();
+    String value();
 
     // 接口描述
     String description() default "";

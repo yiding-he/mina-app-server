@@ -134,7 +134,7 @@ public class AnnotationUtils {
         return new Function() {
 
             @Override
-            public String path() {
+            public String value() {
                 String superPath = getFunctionPath(superFunction);
                 String subPath = getFunctionPath(subFunction);
                 return (StringUtils.isBlank(superPath)? "": (superPath + "/")) + subPath;
@@ -167,7 +167,7 @@ public class AnnotationUtils {
             return "";
         }
 
-        return StringUtils.removeEnd(StringUtils.removeStart(f.path(), "/"), "/");
+        return StringUtils.removeEnd(StringUtils.removeStart(f.value(), "/"), "/");
     }
 
     private static Result mergeResult(Result superResult, final Result subResult) {

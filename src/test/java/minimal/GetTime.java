@@ -7,7 +7,7 @@ import com.hyd.appserver.annotations.Function;
 
 import java.util.Date;
 
-@Function(path = "/base/get-time", description = "查询当前时间")
+@Function(value = "/base/get-time", description = "查询当前时间")
 public class GetTime implements Action {
 
     @Override

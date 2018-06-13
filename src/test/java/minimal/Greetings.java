@@ -5,7 +5,7 @@ import com.hyd.appserver.Request;
 import com.hyd.appserver.Response;
 import com.hyd.appserver.annotations.*;
 
-@Function(path = "/greetings", description = "问候", parameters = {
+@Function(value = "/greetings", description = "问候", parameters = {
         @Parameter(name = "name", type = Type.String, description = "名字")
 }, result = @Result(properties = {
         @Property(name = "greetings", type = Type.String, description = "问候语")

@@ -14,6 +14,6 @@ public interface Action<Q extends Request, R extends Response> {
 
     default String getFullFunctionPath() {
         Function function = AnnotationUtils.getFunction(this.getClass());
-        return function == null ? null : function.path();
+        return function == null ? null : function.value();
     }
 }

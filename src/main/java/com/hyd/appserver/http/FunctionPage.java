@@ -222,7 +222,7 @@ public class FunctionPage {
         }
 
         Function function = AnnotationUtils.getFunction(this.actionClass);
-        return function.path();
+        return function.value();
     }
 
     private String getDescription() {

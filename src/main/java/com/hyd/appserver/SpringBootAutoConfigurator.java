@@ -15,7 +15,7 @@ import javax.annotation.PostConstruct;
 
 @Configuration
 @AutoConfigureOrder()
-@ConditionalOnExpression("${mina-app-server.autostart}==true")
+@ConditionalOnExpression("${mina-app-server.autostart:false}")
 @ConditionalOnMissingBean(MinaAppServer.class)
 @EnableConfigurationProperties(ServerConfiguration.class)
 public class SpringBootAutoConfigurator implements ApplicationContextAware {

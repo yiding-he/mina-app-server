@@ -42,7 +42,7 @@ public class FunctionPage {
 
     public static final String stack_trace_pattern = "<div class=\"result\"><strong>服务器异常堆栈</strong><br/>%s</div>";
 
-    public static final String param_form_pattern = "    <form action=\"%s\">%s" +
+    public static final String param_form_pattern = "    <form id=\"submit_form\" action=\"%s\">%s" +
             "      <div class=\"param submit\"><input id=\"submit_button\" type=\"submit\" value=\"提交\"/></div>" +
             "    </form>";
 

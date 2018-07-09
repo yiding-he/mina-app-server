@@ -37,7 +37,12 @@ public class JsonUtils {
         JSONObject jsonObject = JSON.parseObject(json);
         JsonRequestMessage request = new JsonRequestMessage();
 
-        request.setFunctionPath(jsonObject.getString("functionPath"));
+        String functionPath = StringUtils.defaultIfBlank(
+                jsonObject.getString("functionPath"),
+                jsonObject.getString("functionName")
+        );
+
+        request.setFunctionPath(functionPath);
         request.setCheckCode(jsonObject.getString("checkCode"));
         request.setTimestamp(jsonObject.getString("timestamp"));
 

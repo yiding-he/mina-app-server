@@ -34,5 +34,7 @@ public class ServerConfiguration {
 
     private boolean autostart = false;
 
+    private boolean compatibilityMode = false;
+
     private Authenticator authenticator;
 }

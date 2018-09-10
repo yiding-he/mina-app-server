@@ -87,17 +87,4 @@
         </plugins>
     </build>
 
-    <distributionManagement>
-        <repository>
-            <id>heyiding.com</id>
-            <name>public</name>
-            <url>https://heyiding.com/nexus/content/repositories/releases/</url>
-        </repository>
-        <snapshotRepository>
-            <id>heyiding.com</id>
-            <name>Snapshots</name>
-            <url>https://heyiding.com/nexus/content/repositories/snapshots/</url>
-        </snapshotRepository>
-    </distributionManagement>
-
 </project>

@@ -22,7 +22,7 @@ public class DynamicObject extends HashMap<String, Object> {
 
     private static final Logger LOG = LoggerFactory.getLogger(DynamicObject.class);
 
-    public static final SimpleDateFormat[] FORMATS = {
+    private static final SimpleDateFormat[] FORMATS = {
             new SimpleDateFormat("yyyy/MM/dd HH:mm:ss"),
             new SimpleDateFormat("yyyy/MM/dd HH:mm"),
             new SimpleDateFormat("yyyy/MM/dd"),
@@ -382,7 +382,7 @@ public class DynamicObject extends HashMap<String, Object> {
             if (field != null) {
                 Type genericType = field.getGenericType();
 
-                if (genericType != null && genericType instanceof ParameterizedType) {
+                if (genericType instanceof ParameterizedType) {
                     ParameterizedType parameterizedType = (ParameterizedType) genericType;
                     genericClass = (Class<?>) parameterizedType.getActualTypeArguments()[0];
                 }

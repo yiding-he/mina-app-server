@@ -112,17 +112,4 @@
         </plugins>
     </build>
 
-    <distributionManagement>
-        <repository>
-            <id>znxunzhi</id>
-            <name>public</name>
-            <url>http://120.25.145.102:8081/nexus/content/repositories/releases/</url>
-        </repository>
-        <snapshotRepository>
-            <id>znxunzhi</id>
-            <name>Snapshots</name>
-            <url>http://120.25.145.102:8081/nexus/content/repositories/snapshots/</url>
-        </snapshotRepository>
-    </distributionManagement>
-
 </project>

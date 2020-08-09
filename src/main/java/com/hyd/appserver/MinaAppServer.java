@@ -41,7 +41,7 @@ import java.util.List;
 @SuppressWarnings("unchecked")
 public class MinaAppServer {
 
-    public static final String VERSION_STRING = "3.0";
+    public static final String VERSION_STRING = "3.0.1";
 
     private static final Logger LOG = LoggerFactory.getLogger(MinaAppServer.class);
 

@@ -47,7 +47,7 @@ public class ServerStatusPage {
             "  %s" +
             "</body></html>";
 
-    private static final String action_pattern = "<div><a name=\"%s\"></a>" +
+    private static final String action_pattern = "<div class=\"action_block\"><a name=\"%s\"></a>" +
             "  <h3>%s</h3>" +
             "  <div>执行次数：%d</div>" +
             "  <div>总执行时间（毫秒）：%d</div>" +
@@ -141,7 +141,7 @@ public class ServerStatusPage {
         Runtime runtime = Runtime.getRuntime();
         statusMap.put("已用内存", convertToMB(runtime.totalMemory() - runtime.freeMemory()) + " MB");
 
-        statusMap.put("处理线程池大小", this.serverCore.getServerConfiguration().getMaxProcessorThreads());
+        statusMap.put("处理线程池大小", this.serverCore.getServerConfiguration().getMaxActiveWorkers());
         statusMap.put("当前连接数", this.ioService.getManagedSessionCount());
 
         IoServiceStatistics stat = this.ioService.getStatistics();

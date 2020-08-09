@@ -21,7 +21,7 @@ import java.nio.charset.CharsetDecoder;
  */
 public class JsonRequestDecoder extends MessageDecoderAdapter {
 
-    private static final Logger log = LoggerFactory.getLogger(JsonRequestDecoder.class);
+    private static final Logger LOG = LoggerFactory.getLogger(JsonRequestDecoder.class);
 
     private String status = "ready";
 
@@ -54,13 +54,13 @@ public class JsonRequestDecoder extends MessageDecoderAdapter {
         String[] jsons = str.split("\n+");
 
         for (String json : jsons) {
-            log.debug("Received original json: " + json);
+            LOG.debug("Received original json: " + json);
 
             JsonRequestMessage request;
             try {
                 request = JsonUtils.parseRequest(json);
             } catch (Exception e) {
-                log.error("Error parsing request message", e);
+                LOG.error("Error parsing request message", e);
 
                 request = new JsonRequestMessage();
                 request.setValid(false);

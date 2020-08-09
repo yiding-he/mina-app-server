@@ -10,5 +10,5 @@ import com.hyd.appserver.Request;
  */
 public interface ActionFactory {
 
-    Action getAction(Class<Action> type, Request request);
+    Action getAction(Class<? extends Action> type, Request request);
 }

@@ -1,61 +1,46 @@
-# mina-app-server 使用说明
+# 01 开始创建项目
 
 _本文档假设读者会使用 Maven。_
 
-## 1. 介绍
+### 一、下载并安装到本地 Maven 库
 
-mina-app-server 是一个远程服务调用框架，特点是：
+#### 1. 下载
 
-1. 服务器可单独运行，也可以嵌入其他工程；
-2. 使用 Annotation 定义接口的参数和返回值，快速开发业务逻辑；
-3. 可通过浏览器打开管理界面，查看接口的执行效率和线程池状态；
-4. 支持负载均衡，当一台服务器无法访问时将请求转发到其他服务器；
-5. 客户端使用同样简单。
+    $ git clone https://gitee.com/yidinghe/mina-app-server.git
 
-## 2. 搭建工程
+#### 2. 安装
 
-下面介绍如何创建一个独立运行的 mina-app-server 服务器工程。
+```text
+$ cd mina-app-server
+$ mvn -Dmaven.test.skip=true install
+```
 
-### 1) 创建 Maven 项目
+### 二、新建一个空的 Spring Boot 项目
 
-因为对 POM 没有特殊要求，此处略过
+最简单的做法就是
 
-### 2) 编辑 POM
+    $ curl https://start.spring.io/starter.zip -o demo.zip
+    
+或者点击 https://start.spring.io/starter.zip 保存到任意位置，解压即可。
 
-#### a. 加入版本库
+### 三、添加依赖关系
 
-mina-app-server 没有加入 central repository，而是上传到了 oschina 搭建的 maven 库。你需要在 POM 的 `<project>` 中加入下面的元素
+在 \<dependencies> 元素中加入下面的内容：
 
-    <repositories>
-        <repository>
-            <id>nexus</id>
-            <name>local private nexus</name>
-            <url>http://maven.oschina.net/content/groups/public/</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </repository>
-    </repositories>
+```xml
+<dependency>
+    <groupId>com.hyd</groupId>
+    <artifactId>mina-app-server</artifactId>
+    <version>3.0.0-SNAPSHOT</version>
+</dependency>
+```
 
-#### b. 加入依赖关系
+### 四、修改配置文件
 
-    <dependency>
-        <groupId>com.hyd</groupId>
-        <artifactId>mina-app-server</artifactId>
-        <version>2.0.0</version>
-    </dependency>
+打开 `application.properties`，写入下面的内容
 
-如果你获得的是已经编译好的 jar 文件，则将其放到项目的 local-lib 目录下（没有该目录则创建一个），并加入下面的依赖关系
+    mina-app-server.autostart=true
 
-    <dependency>
-        <groupId>com.hyd</groupId>
-        <artifactId>mina-app-server</artifactId>
-        <version>LATEST</version>
-        <scope>system</scope>
-        <systemPath>${project.basedir}/local-lib/mina-app-server-2.0.0.jar</systemPath>
-    </dependency>
+### 五、运行！
 
-### 3) 
+运行项目的主类即可。

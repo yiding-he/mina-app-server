@@ -22,7 +22,7 @@ import java.lang.reflect.Type;
  */
 public class PojoInfoPage {
 
-    static final Logger log = LoggerFactory.getLogger(PojoInfoPage.class);
+    private static final Logger LOG = LoggerFactory.getLogger(PojoInfoPage.class);
 
     private static final String page_pattern = "<html><head>" +
             "<title>POJO 结构</title><link rel=\"stylesheet\" href=\"../default.css\"/>" +
@@ -77,7 +77,7 @@ public class PojoInfoPage {
                         getPropertyTypeName(descriptor), descriptor.getName()));
             }
         } catch (IntrospectionException e) {
-            log.error("", e);
+            LOG.error("", e);
             sb.append("    // Error parsing properties: ").append(e).append("\n\n");
         }
 
@@ -131,7 +131,7 @@ public class PojoInfoPage {
                 } else if (argType instanceof ParameterizedType) {
                     result += extractTypeName(argType);
                 } else {
-                    log.error("Unknown Type: " + argType);
+                    LOG.error("Unknown Type: " + argType);
                 }
 
                 result += ",";

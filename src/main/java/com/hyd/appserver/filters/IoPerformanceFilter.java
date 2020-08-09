@@ -31,7 +31,7 @@ public class IoPerformanceFilter extends IoFilterAdapter {
     @Override
     public void messageReceived(NextFilter nextFilter, IoSession session, Object message) throws Exception {
         if (message instanceof JsonRequestMessage) {
-            String functionName = ((JsonRequestMessage) message).getFunctionName();
+            String functionName = ((JsonRequestMessage) message).getFunctionPath();
             session.setAttribute("functionName", functionName);
             snapshot.processStarted(session.getId(), functionName);
         }

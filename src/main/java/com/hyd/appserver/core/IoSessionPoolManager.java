@@ -30,7 +30,7 @@ public class IoSessionPoolManager {
 
     private final AtomicInteger roller = new AtomicInteger(0);
 
-    private boolean observing = true;
+    private Timer observerTimer = new Timer("MinaAppServerChecker", true);
 
     /**
      * 构造方法
@@ -41,6 +41,7 @@ public class IoSessionPoolManager {
 
         this.configuration = configuration;
 
+        // fill availablePools
         for (InetSocketAddress address : configuration.getServerAddresses()) {
             IoSessionPool pool = new IoSessionPool(
                     address,
@@ -57,7 +58,14 @@ public class IoSessionPoolManager {
             availablePools.add(pool);
         }
 
-        new ObserveThread().start();
+        // start checking schedule task
+        observerTimer.schedule(new TimerTask() {
+
+            @Override
+            public void run() {
+                testAllServer();
+            }
+        }, CHECK_INTERVAL_MILLIS, CHECK_INTERVAL_MILLIS);
     }
 
     /**
@@ -82,28 +90,7 @@ public class IoSessionPoolManager {
      * @return 可用连接
      */
     public IoSession borrowIoSession() {
-        int retryCounter = 0;
-
-        do {
-
-            try {
-                return getIoSession(true);
-            } catch (AppClientException e) {
-                LOG.debug("Retrying connection: " + retryCounter);
-
-                if (retryCounter >= 3) {
-                    throw e;
-                } else {
-                    try {
-                        Thread.sleep(5000);
-                    } catch (InterruptedException e1) {
-                        // ignored
-                    }
-                    retryCounter++;
-                }
-            }
-
-        } while (true);
+        return getIoSession(true);
     }
 
     /**
@@ -147,9 +134,7 @@ public class IoSessionPoolManager {
             } catch (AppClientException e) {
                 LOG.info("Failed to open session: " + e.getMessage());
                 pool.setAvailableStatus(false);
-                if (availablePools.contains(pool)) {
-                    availablePools.remove(pool);
-                }
+                availablePools.remove(pool);
             }
         }
 
@@ -170,7 +155,7 @@ public class IoSessionPoolManager {
     }
 
     public void shutdown() {
-        observing = false;
+        observerTimer.cancel();
 
         for (IoSessionPool pool : poolMappings.values()) {
             try {
@@ -254,31 +239,4 @@ public class IoSessionPoolManager {
         return result;
     }
 
-    /////////////////////////////////////////////////////////
-
-    /**
-     * 监视线程
-     */
-    @SuppressWarnings("InfiniteLoopStatement")
-    private class ObserveThread extends Thread {
-
-        private ObserveThread() {
-            this.setDaemon(true);
-        }
-
-        @Override
-        public void run() {
-            while (observing) {
-                try {
-                    Thread.sleep(CHECK_INTERVAL_MILLIS);
-                } catch (InterruptedException e) {
-                    // nothing to do
-                }
-
-                if (observing) {
-                    testAllServer();
-                }
-            }
-        }
-    }
 }

@@ -16,10 +16,8 @@ import java.util.Map;
  * @author yiding.he
  */
 public class BasicAuthenticator implements Authenticator {
-    
-    static final Logger log = LoggerFactory.getLogger(BasicAuthenticator.class);
-    
-    static final Logger securelog = LoggerFactory.getLogger("com.hyd.appserver.sesure");
+
+    private static final Logger LOG = LoggerFactory.getLogger(BasicAuthenticator.class);
 
     private Map<String, String> keyMappings = new HashMap<String, String>();
 
@@ -45,7 +43,7 @@ public class BasicAuthenticator implements Authenticator {
         }
 
         String[] parts = name_and_encoded.split("\n");
-        securelog.debug("checkcode=\"" + parts[0] + "\\n" + parts[1] + "\"");
+        LOG.debug("checkcode=\"" + parts[0] + "\\n" + parts[1] + "\"");
         
         String name = parts[0];
 
@@ -56,7 +54,7 @@ public class BasicAuthenticator implements Authenticator {
         try {
             byte[] encoded = Base64.decode(parts[1]);
             String _text = TripleDESUtils.decrypt(this.keyMappings.get(name), encoded);
-            String text = request.getTimestamp() + "|" + request.getFunctionName() + "|" + name;
+            String text = request.getTimestamp() + "|" + request.getFunctionPath() + "|" + name;
 
             return text.equals(_text);  // 比较解密后的字符串
         } catch (Exception e) {

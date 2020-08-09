@@ -4,9 +4,6 @@ import com.hyd.appserver.*;
 import com.hyd.appserver.annotations.AnnotationUtils;
 import com.hyd.appserver.annotations.Function;
 import com.hyd.appserver.annotations.Parameter;
-import com.hyd.appserver.spring.SpringActionFactory;
-import com.hyd.appserver.utils.ClassHelper;
-import com.hyd.appserver.utils.DefaultClassHelper;
 import com.hyd.appserver.utils.JsonUtils;
 import com.hyd.appserver.utils.StringUtils;
 import org.slf4j.Logger;
@@ -14,7 +11,10 @@ import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Modifier;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 /**
  * 应用服务器业务逻辑处理，与外层协议无关
@@ -25,29 +25,27 @@ import java.util.*;
 public class AppServerCore {
 
     // 本类使用的 logger
-    static final Logger log = LoggerFactory.getLogger(AppServerCore.class);
+    private static final Logger LOG = LoggerFactory.getLogger(AppServerCore.class);
 
     // 专用于输入/输出日志的 logger
     private static final Logger REQUEST_LOGGER = LoggerFactory.getLogger("com.hyd.appserver.log.request");
 
     private static final Logger RESPONSE_LOGGER = LoggerFactory.getLogger("com.hyd.appserver.log.response");
 
-    List<Class<Action>> actionClasses = new ArrayList<Class<Action>>();
-
     /**
      * 缓存“类型-接口名”匹配关系
      */
-    private FunctionTypeMappings<Action> typeMappings = new DefaultFunctionTypeMappings<Action>();
+    private FunctionTypeMappings<Action> typeMappings;
 
     /**
      * Action 工厂
      */
-    private ActionFactory actionFactory = new DefaultActionFactory();
+    private ActionFactory actionFactory;
 
     /**
      * 自定义日志处理
      */
-    private LogHandler logHandler = null;
+    private InvocationListener invocationListener;
 
     /**
      * 拦截器
@@ -67,9 +65,7 @@ public class AppServerCore {
     /**
      * 如果 enabled 为 false，将拒绝一切请求。服务器关闭之前需要先切断业务处理，拒绝所有后续请求。
      */
-    private boolean enabled = true;
-
-    private ClassHelper classHelper = new DefaultClassHelper();
+    private volatile boolean enabled = true;
 
     public AppServerCore(ServerConfiguration configuration) {
         this.serverConfiguration = configuration;
@@ -83,12 +79,12 @@ public class AppServerCore {
         return actionFactory;
     }
 
-    public void setClassHelper(ClassHelper classHelper) {
-        this.classHelper = classHelper;
+    public InterceptorChain getInterceptors() {
+        return interceptors;
     }
 
-    public ClassHelper getClassHelper() {
-        return classHelper;
+    public void setTypeMappings(FunctionTypeMappings<Action> typeMappings) {
+        this.typeMappings = typeMappings;
     }
 
     /**
@@ -117,21 +113,12 @@ public class AppServerCore {
     }
 
     /**
-     * 设置 Action 类所在的包
-     *
-     * @param packages Action 类所在的包
-     */
-    public void setPackages(String[] packages) {
-        this.typeMappings.setPackages(packages);
-    }
-
-    /**
      * 设置接口调用日志处理类
      *
-     * @param logHandler 接口调用日志处理类
+     * @param invocationListener 接口调用日志处理类
      */
-    public void setLogHandler(LogHandler logHandler) {
-        this.logHandler = logHandler;
+    public void setInvocationListener(InvocationListener invocationListener) {
+        this.invocationListener = invocationListener;
     }
 
     /**
@@ -163,32 +150,29 @@ public class AppServerCore {
         /////////////////////////////////////////////////////////
 
         // 特殊命令：shutdown
-        if (_request.getFunctionName().equals("__shutdown__")) {
+        if (_request.getFunctionPath().equals("__shutdown__")) {
 
-            log.error("Server is shutting down by 'shutdown' command...");
+            LOG.error("Server is shutting down by 'shutdown' command...");
             final AppServerCore core = this;
             core.setEnabled(false);
 
-            new Thread() {
-                @Override
-                public void run() {
+            new Thread(() -> {
 
-                    // 这个线程等待 100 毫秒是为了让服务器有时间
-                    // 将 Response 返回给客户端，以免关闭过快
-                    try {
-                        Thread.sleep(100);
-                    } catch (InterruptedException e) {
-                        // nothing to do
-                    }
-
-                    MinaAppServer.shutdown(core);
+                // 这个线程等待 100 毫秒是为了让服务器有时间
+                // 将 Response 返回给客户端，以免关闭过快
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException e) {
+                    // nothing to do
                 }
-            }.start();
+
+                MinaAppServer.shutdown(core);
+            }).start();
             return Response.success("Server will shutdown now.");
         }
 
         // 特殊命令：snapshot
-        if (_request.getFunctionName().equals("__snapshot__")) {
+        if (_request.getFunctionPath().equals("__snapshot__")) {
 
             MinaAppServer server = MinaAppServer.getInstance(this);
             if (server == null) {
@@ -205,20 +189,20 @@ public class AppServerCore {
 
         /////////////////////////////////////////////////////////
 
-        log.debug("Request: " + JsonUtils.toJson(_request));
+        LOG.debug("Request: " + JsonUtils.toJson(_request));
 
         // request 的内容会被改变（放入参数缺省值），所以必须创建一个副本。
         Request request = Request.clone(_request);
         actionContext.setRequest(request);
 
         // 处理请求
-        String className = request.getFunctionName();
-        Class<Action> type = findClass(className);
+        String functionPath = request.getFunctionPath();
+        Class<? extends Action> type = typeMappings.find(functionPath);
         Response response;
 
         try {
             if (type == null) {
-                response = Response.fail("(未知的接口'" + className + "')");
+                response = Response.fail("(未知的接口'" + functionPath + "')");
 
             } else {
                 request = setupDefaultParameters(request, type);
@@ -226,20 +210,20 @@ public class AppServerCore {
             }
 
         } catch (Throwable e) {
-            log.error("服务器错误", e);
+            LOG.error("服务器错误", e);
             response = handleException(e);
         }
 
         response.actionType = type;
-        log.debug("Response: " + JsonUtils.toJson(response));
+        LOG.debug("Response: " + JsonUtils.toJson(response));
 
         actionContext.setResponse(response);    // 处理结果放入上下文
         outputExecutionInfo(actionContext);     // 通过 logger 输出接口调用日志
         addActionStatistics(actionContext);     // 添加统计信息
 
         // 自定义日志处理。这里需要完整的上下文，所以放在最后
-        if (logHandler != null) {
-            LogHandlerExecutor.executeHandler(logHandler, actionContext);
+        if (invocationListener != null) {
+            InvocationListenerExecutor.executeHandler(invocationListener, actionContext);
         }
 
         return response;
@@ -249,8 +233,8 @@ public class AppServerCore {
     private void outputExecutionInfo(ActionContext actionContext) {
         long executeTime = actionContext.getExecutionEndMillis() - actionContext.getExecutionStartMillis();
 
-        REQUEST_LOGGER.debug("request: " + JsonUtils.toJson(actionContext.getRequest()));
-        RESPONSE_LOGGER.debug("response: " + JsonUtils.toJson(actionContext.getResponse()) + "; time: " + executeTime);
+        REQUEST_LOGGER.trace("request: " + JsonUtils.toJson(actionContext.getRequest()));
+        RESPONSE_LOGGER.trace("response: " + JsonUtils.toJson(actionContext.getResponse()) + "; time: " + executeTime);
     }
 
     // 根据异常信息生成 response
@@ -273,7 +257,7 @@ public class AppServerCore {
      *
      * @return request
      */
-    private Request setupDefaultParameters(Request request, Class<Action> type) {
+    private Request setupDefaultParameters(Request request, Class<? extends Action> type) {
         Function function = AnnotationUtils.getFunction(type);
 
         if (function == null) {
@@ -284,11 +268,6 @@ public class AppServerCore {
 
             // 只有当参数是可选的才会需要设置缺省值。
             if (parameter.required()) {
-                continue;
-            }
-
-            // 如果文档中没有定义缺省值，则不需要设置缺省值。
-            if (parameter.defaultValue() == null) {
                 continue;
             }
 
@@ -322,7 +301,7 @@ public class AppServerCore {
      *
      * @return 处理结果
      */
-    private Response process0(Request request, Class<Action> type) {
+    private Response process0(Request request, Class<? extends Action> type) {
         ActionContext actionContext = ActionContext.getContext();
 
         Response response;
@@ -361,7 +340,7 @@ public class AppServerCore {
             return;
         }
 
-        this.serverStatistics.addExecutionData(actionContext.getRequest().getFunctionName(), end - start);
+        this.serverStatistics.addExecutionData(actionContext.getRequest().getFunctionPath(), end - start);
     }
 
     /**
@@ -377,7 +356,7 @@ public class AppServerCore {
         }
 
         try {
-            Constructor default_cons = type.getConstructor(new Class[]{});
+            Constructor default_cons = type.getConstructor();
             return Modifier.isPublic(default_cons.getModifiers());
         } catch (NoSuchMethodException e) {
             return false;
@@ -403,17 +382,12 @@ public class AppServerCore {
             InterceptorChain interceptors = new InterceptorChain(this.interceptors);
 
             // 调用 InterceptorChain 处理
-            response = new ActionInvocation(ActionContext.getContext(), interceptors,
-
-                    new ActionInvocation.FinalInvocation() {
-                        @Override
-                        public Response invoke() throws Exception {
-                            return action.execute(request);
-                        }
-                    }).invoke();
+            response = new ActionInvocation(
+                    ActionContext.getContext(), interceptors,
+                    () -> action.execute(request)).invoke();
 
         } catch (Throwable e) {
-            log.error("Action 执行失败", e);
+            LOG.error("Action 执行失败", e);
             response = Response.fail(e);
         }
 
@@ -428,7 +402,7 @@ public class AppServerCore {
         }
 
         Parameter[] parameters = function.parameters();
-        List<String> mismatched = new ArrayList<String>();
+        List<String> mismatched = new ArrayList<>();
 
         for (Parameter parameter : parameters) {
             String pattern = parameter.pattern();
@@ -459,7 +433,7 @@ public class AppServerCore {
         }
 
         Parameter[] parameters = function.parameters();
-        List<String> missingParameters = new ArrayList<String>();
+        List<String> missingParameters = new ArrayList<>();
 
         for (Parameter parameter : parameters) {
             if (parameter.required()) {
@@ -475,59 +449,8 @@ public class AppServerCore {
 
     /////////////////////////////////////////
 
-    // 根据类名查找 Action 类
-    private Class<Action> findClass(String className) {
-        return typeMappings.find(className);
-    }
-
-    /**
-     * 列出所有的 Action 类
-     *
-     * @return 所有的 Action 类
-     */
-    public List<Class<Action>> getActionClasses() {
-
-        if (typeMappings.getPackages() == null) {
-            return Collections.emptyList();
-        }
-
-        if (actionClasses.isEmpty()) {
-            for (String packageName : typeMappings.getPackages()) {
-
-                ClassLoader classLoader = actionFactory instanceof SpringActionFactory ?
-                        ((SpringActionFactory) actionFactory).getApplicationContext().getClassLoader() :
-                        AppServerCore.class.getClassLoader();
-
-                List<Class<Action>> classes = this.classHelper.findClasses(classLoader, Action.class, packageName);
-                log.debug("found classes from " + packageName + ": " + classes);
-                actionClasses.addAll(classes);
-            }
-
-            Iterator<Class<Action>> iterator = actionClasses.iterator();
-            while (iterator.hasNext()) {
-                Class<Action> type = iterator.next();
-
-                // 不列出接口和抽象类
-                if (type.isInterface() || Modifier.isAbstract(type.getModifiers())) {
-                    iterator.remove();
-                }
-            }
-        }
-
-        actionClasses.removeAll(Collections.singleton((Class<Action>) null));
-
-        return actionClasses;
-    }
-
     public void shutdown() {
-        LogHandlerExecutor.shutdown();
+        InvocationListenerExecutor.shutdown();
     }
 
-    public void addInterceptor(int position, Interceptor interceptor) {
-        this.interceptors.add(position, interceptor);
-    }
-
-    public void addInterceptor(Interceptor interceptor) {
-        this.interceptors.add(interceptor);
-    }
 }

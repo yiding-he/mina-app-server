@@ -1,9 +1,10 @@
-body, input, button, select, div.result {
+body, input, button, select, .result {
     font-size: 10pt;
     font-family: monospace, 'Microsoft Yahei', sans-serif;
 }
 
 .result {
+    font-family: Consolas, "Courier New", "Source Code Pro", monospace;
     background-color: #eee;
     border: 1px solid #ddd;
     border-radius: 2px;
@@ -11,6 +12,7 @@ body, input, button, select, div.result {
     margin-bottom: 5px;
     max-height: 500px;
     overflow-y: auto;
+    line-height: 150%;
 }
 
 .field {
@@ -18,17 +20,25 @@ body, input, button, select, div.result {
 }
 
 .label {
-    background-color: #ffc;
-    border: 1px solid #eda;
+    background-color: #c0dfff;
+    border: 1px solid #97ceff;
     border-radius: 2px;
-    color: #863;
-    padding: 0.4em 1em
+    color: #1d5fb5;
+    padding: 0.4em 1em;
 }
 
 .param, .property, .fieldvalue {
     padding-left: 20px;
     padding-top: 0.2em;
     padding-bottom: 0.2em;
+}
+
+.fieldvalue {
+    margin-top: 0.3em;
+}
+
+#submit_form {
+    margin-top: 0.4em;
 }
 
 .property:hover {
@@ -48,9 +58,7 @@ body, input, button, select, div.result {
 }
 
 .param.submit {
-    border-top: 1px solid #ddd;
-    padding-top: 0.3em;
-    margin-top: 0.3em;
+    margin-top: 0.6em;
 }
 
 .listproperty>.property {
@@ -60,18 +68,19 @@ body, input, button, select, div.result {
 .return_value_title {
     font-weight: bold;
     margin-top: 1.5em;
-    color: #996600;
+    color: #1d5fb5;
 }
 
 .type {
     background-color: #eee;
-    border: 1px solid #ddd;
-    padding: 1px 4px;
+    padding: 2px 5px;
     color: #000;
 }
 
 .param input[type=text] {
-    height: 20px;
+    padding: 0.3em;
+    border: 1px solid #97ceff;
+    border-radius: 4px;
     width: 400px;
 }
 
@@ -84,7 +93,17 @@ hr.split {
 .codename {
     display: inline-block;
     min-width: 50pt;
-    color: #996600;
+    color: #1d5fb5;
+}
+
+#submit_button {
+    padding: 0.4em 1em;
+    background: linear-gradient(to bottom, rgba(79,170,255,1) 0%, rgba(32,124,229,1) 55%, rgba(32,124,229,1) 100%);
+    color: #ffffff;
+    border: none;
+    border-radius: 2px;
+    font-weight: bold;
+    cursor: pointer;
 }
 
 .type {

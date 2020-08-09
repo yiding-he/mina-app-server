@@ -24,7 +24,7 @@ public class ActionContext extends HashMap<String, Object> {
 
     /////////////////////////////////////////
 
-    private ServerConfiguration serverConfiguration = ServerConfiguration.DEFAULT_CONFIG;
+    private ServerConfiguration serverConfiguration;
 
     private Response response;
 

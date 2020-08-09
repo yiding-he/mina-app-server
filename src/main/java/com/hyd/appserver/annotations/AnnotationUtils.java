@@ -6,7 +6,10 @@ import com.hyd.appserver.utils.StringUtils;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * 用于获取 Action 类的 Function 注解。注意：真正的 Action 注解是 Action
@@ -18,7 +21,7 @@ import java.util.*;
 public class AnnotationUtils {
 
     // 缓存 Action 类的 Function 注解
-    public static final Map<Class, Function> FUNCTION_MAP = new HashMap<Class, Function>();
+    private static final Map<Class, Function> FUNCTION_MAP = new HashMap<>();
 
     /**
      * 获取 Action 类型的 Function 注解
@@ -51,14 +54,21 @@ public class AnnotationUtils {
                 }
             }
 
-            FUNCTION_MAP.put(type, function);
+            if (function != null) {
+                if (StringUtils.isBlank(function.value())) {
+                    function = mergeFunction(function, type.getSimpleName());
+                }
+
+                FUNCTION_MAP.put(type, function);
+            }
+
             return function;
         }
 
     }
 
     private static List<Class<?>> listTypes(Class<?> type) {
-        ArrayList<Class<?>> result = new ArrayList<Class<?>>();
+        ArrayList<Class<?>> result = new ArrayList<>();
         List<Class<?>> classes = listClassHierachy(type);
 
         for (Class<?> clazz : classes) {
@@ -86,7 +96,7 @@ public class AnnotationUtils {
     }
 
     private static List<Class<?>> listClassHierachy(Class<?> type) {
-        List<Class<?>> result = new ArrayList<Class<?>>();
+        List<Class<?>> result = new ArrayList<>();
         Class<?> _type = type;
 
         while (_type != null) {
@@ -125,10 +135,17 @@ public class AnnotationUtils {
             }
         }.merge(superFunction.parameters(), subFunction.parameters());
 
-        final Parameter[] parameters = parameterList.toArray(new Parameter[parameterList.size()]);
+        final Parameter[] parameters = parameterList.toArray(new Parameter[0]);
 
         // 返回结果
         return new Function() {
+
+            @Override
+            public String value() {
+                String superPath = getFunctionPath(superFunction);
+                String subPath = getFunctionPath(subFunction);
+                return (StringUtils.isBlank(superPath) ? "" : (superPath + "/")) + subPath;
+            }
 
             @Override
             public String description() {
@@ -150,6 +167,45 @@ public class AnnotationUtils {
                 return subFunction.annotationType();
             }
         };
+    }
+
+    private static Function mergeFunction(Function original, String customPath) {
+        // 返回结果
+        return new Function() {
+
+            @Override
+            public String value() {
+                return customPath;
+            }
+
+            @Override
+            public String description() {
+                return original.description();
+            }
+
+            @Override
+            public Parameter[] parameters() {
+                return original.parameters();
+            }
+
+            @Override
+            public Result result() {
+                return original.result();
+            }
+
+            @Override
+            public Class<? extends Annotation> annotationType() {
+                return original.annotationType();
+            }
+        };
+    }
+
+    private static String getFunctionPath(Function f) {
+        if (f == null) {
+            return "";
+        }
+
+        return StringUtils.removeEnd(StringUtils.removeStart(f.value(), "/"), "/");
     }
 
     private static Result mergeResult(Result superResult, final Result subResult) {
@@ -182,12 +238,12 @@ public class AnnotationUtils {
 
             @Override
             public Property[] properties() {
-                return propertyList.toArray(new Property[propertyList.size()]);
+                return propertyList.toArray(new Property[0]);
             }
 
             @Override
             public ListProperty[] listProperties() {
-                return listPropertyList.toArray(new ListProperty[listPropertyList.size()]);
+                return listPropertyList.toArray(new ListProperty[0]);
             }
 
             @Override

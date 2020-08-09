@@ -5,6 +5,9 @@ import com.hyd.appserver.ActionContext;
 import com.hyd.appserver.annotations.*;
 import com.hyd.appserver.utils.StringUtils;
 
+import java.util.List;
+import java.util.Map;
+
 /**
  * 接口文档页面
  *
@@ -15,18 +18,18 @@ public class FunctionPage {
     private static final String page_pattern = "<html><head>" +
             "<title>%s</title>" +
             "<meta name=\"viewport\" content=\"width=device-width, user-scalable=no\">" +
-            "<link rel=\"stylesheet\" href=\"default.css\"/>" +
-            "<link rel=\"stylesheet\" href=\"function.css\"/>" +
+            "<link rel=\"stylesheet\" href=\"../default.css\"/>" +
+            "<link rel=\"stylesheet\" href=\"../function.css\"/>" +
             "<style type=\"text/css\">%s</style>" +
             "</head><body>" +
             "<div style=\"margin:5px;\">" +
-            "<a href=\"./\">接口列表</a> &gt; %s" +
+            "<a href=\"../\">接口列表</a> &gt; %s" +
             "</div>" +
             "<div class=\"result\"><strong>请求</strong><br/>%s</div>" +
             "<div class=\"result\"><strong>调用结果</strong><br/>%s</div>" +
             "%s" +
             "<div class=\"description\">" +
-            "  <div class=\"field\"><div class=\"label\">名称</div>" +
+            "  <div class=\"field\"><div class=\"label\">路径</div>" +
             "    <div class=\"fieldvalue functionname\"><code><strong>%s</strong></code></div>" +
             "  </div>" +
             "  <div class=\"field\"><div class=\"label\">描述</div><div class=\"fieldvalue\">%s</div></div>" +
@@ -39,7 +42,7 @@ public class FunctionPage {
 
     public static final String stack_trace_pattern = "<div class=\"result\"><strong>服务器异常堆栈</strong><br/>%s</div>";
 
-    public static final String param_form_pattern = "    <form action=\"%s\">%s" +
+    public static final String param_form_pattern = "    <form id=\"submit_form\" action=\"%s\">%s" +
             "      <div class=\"param submit\"><input id=\"submit_button\" type=\"submit\" value=\"提交\"/></div>" +
             "    </form>";
 
@@ -63,7 +66,7 @@ public class FunctionPage {
             "%s" +
             "</div>";
 
-    public static final String pojo_type_link_pattern = "<a href=\"pojo/%s\">%s</a>";
+    public static final String pojo_type_link_pattern = "<a href=\"../pojo/%s\">%s</a>";
 
     /////////////////////////////////////////
 
@@ -75,9 +78,9 @@ public class FunctionPage {
 
     private String requestText;
 
-    private Class<Action> actionClass;
+    private Class<? extends Action> actionClass;
 
-    private HttpRequestMessage request;
+    private Map<String, List<String>> parameters;
 
     public String getStackTrace() {
         return stackTrace;
@@ -99,12 +102,12 @@ public class FunctionPage {
         this.requestText = requestText;
     }
 
-    public void setActionClass(Class<Action> actionClass) {
+    public void setActionClass(Class<? extends Action> actionClass) {
         this.actionClass = actionClass;
     }
 
-    public void setRequest(HttpRequestMessage request) {
-        this.request = request;
+    public void setParameters(Map<String, List<String>> parameters) {
+        this.parameters = parameters;
     }
 
     @Override
@@ -158,7 +161,7 @@ public class FunctionPage {
         if (parameterStr.length() == 0) {
             return "";
         } else {
-            return String.format(param_form_pattern, actionName, parameterStr);
+            return String.format(param_form_pattern, StringUtils.encodeUrl(actionName), parameterStr);
         }
     }
 
@@ -187,6 +190,8 @@ public class FunctionPage {
                     "" : ("，缺省值 " + parameter.defaultValue());
 
             if (ActionContext.getContext().getServerConfiguration().isHttpTestEnabled()) {
+                List<String> paramValues = parameters.get(parameter.name());
+                String paramValue = (paramValues == null || paramValues.isEmpty()) ? "" : paramValues.get(0);
                 str += String.format(param_pattern,
                         className,
                         parameter.name(),
@@ -194,7 +199,7 @@ public class FunctionPage {
                         parameter.description(),
                         optionalStr + defaultValueStr,
                         parameter.name(),
-                        StringUtils.defaultIfEmpty(request.getParameter(parameter.name()), "")
+                        StringUtils.defaultIfEmpty(paramValue, "")
                 );
             } else {
                 str += String.format(param_pattern_readonly,
@@ -216,7 +221,8 @@ public class FunctionPage {
             return "";
         }
 
-        return this.actionClass.getSimpleName();
+        Function function = AnnotationUtils.getFunction(this.actionClass);
+        return function.value();
     }
 
     private String getDescription() {
@@ -224,8 +230,8 @@ public class FunctionPage {
             return "";
         }
 
-        Function annotation = AnnotationUtils.getFunction(this.actionClass);
-        return annotation == null ? "" : annotation.description();
+        Function function = AnnotationUtils.getFunction(this.actionClass);
+        return function.description();
     }
 
     private String getResultStr() {

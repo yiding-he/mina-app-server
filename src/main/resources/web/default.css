@@ -13,3 +13,14 @@ pre {
 h1 {
     font-size: 14pt;
 }
+
+div.action_block {
+    display: inline-block;
+    margin: 10px;
+    border: 1px solid #AAAAAA;
+    padding: 10px;
+}
+
+div.action_block h3 {
+    margin-top: 0;
+}

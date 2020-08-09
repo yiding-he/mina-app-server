@@ -17,17 +17,26 @@ import java.util.jar.JarFile;
  * @author yiding.he
  */
 @SuppressWarnings({"unchecked"})
-public class DefaultClassHelper implements ClassHelper {
+public class ClassUtils {
 
-    static final Logger log = LoggerFactory.getLogger(DefaultClassHelper.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ClassUtils.class);
 
-    public <T> List<Class<T>> findClasses(Class<T> iface, String... packageNames) {
+    /**
+     * Searches the classpath for all classes matching a specified search criteria,
+     * returning them in a map keyed with the interfaces they implement or null if they
+     * have no interfaces. The search criteria can be specified via interface, package
+     * and jar name filter arguments
+     * <p/>
+     *
+     * @param iface        查询特定类型的类
+     * @param packageNames A Set of fully qualified package names to search for or
+     *                     or null to return classes in all packages
+     *
+     * @return A Map of a Set of Classes keyed to their interface names
+     */
+    public static <T> List<Class<T>> findClasses(Class<T> iface, String... packageNames) {
+
         ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-        return findClasses(classLoader, iface, packageNames);
-    }
-
-    public <T> List<Class<T>> findClasses(ClassLoader classLoader, Class<T> iface, String... packageNames) {
-
         List<String> packages = new ArrayList<String>(Arrays.asList(packageNames));
 
         List<Class<T>> result = new ArrayList<Class<T>>();
@@ -42,7 +51,7 @@ public class DefaultClassHelper implements ClassHelper {
             try {
                 classPath = new File(classPathUrl.toURI());
             } catch (URISyntaxException e) {
-                log.error("Skipping classPath '" + classPathUrl + "'", e);
+                LOG.error("Skipping classPath '" + classPathUrl + "'", e);
                 continue;
             }
 
@@ -63,9 +72,9 @@ public class DefaultClassHelper implements ClassHelper {
                     // get an enumeration of the files in this jar
                     files = module.entries();
                 } catch (MalformedURLException e) {
-                    log.error("Skipping classPath '" + classPathUrl + "'", e);
+                    LOG.error("Skipping classPath '" + classPathUrl + "'", e);
                 } catch (IOException e) {
-                    log.error("Skipping classPath '" + classPathUrl + "'", e);
+                    LOG.error("Skipping classPath '" + classPathUrl + "'", e);
                 }
             }
 
@@ -89,10 +98,10 @@ public class DefaultClassHelper implements ClassHelper {
                     try {
                         theClass = Class.forName(className, false, classLoader);
                     } catch (NoClassDefFoundError e) {
-                        log.error("Skipping class '" + className + "'", e.getMessage());
+                        LOG.error("Skipping class '" + className + "'", e.getMessage());
                         continue;
                     } catch (ClassNotFoundException e) {
-                        log.error("Skipping class '" + className + "'", e.getMessage());
+                        LOG.error("Skipping class '" + className + "'", e.getMessage());
                         continue;
                     }
 

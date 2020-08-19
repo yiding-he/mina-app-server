@@ -1,26 +1,14 @@
 # mina-app-server
 
 mina-app-server 是一个 Java 的远程调用框架，基于 
-[Apache Mina](http://mina.apache.org/)。它主要用于开发独立的远程调用的服务。
+[Apache Mina](http://mina.apache.org/) 。它主要用于开发独立的远程调用的服务。
 
-### 3.0.0 重大更新：
+## 适用场景：
 
-Mina-App-Server 将成为一个基于 Spring Boot 的框架！
+希望快速搭建分布式服务，自带高可用和负载均衡，但不想像 dubbo 那样发布 jar 包。
 
-#### （2018-06-12）:
+## 主要特性：
 
-  * 取消原有的 server.properties 配置文件，改为使用 Spring Boot 的 application.properties 
-  进行配置，所有的配置以 `"mina-app-server"` 为前缀。对应的配置类为 
-  `com.hyd.appserver.core.ServerConfiguration`
-  * 在项目中实现 `com.hyd.appserver.MinaAppServerConfigurator` 接口可以做进一步配置。
-  * favicon 图标来自 https://www.flaticon.com ，在 web 
-  管理页面的 “关于” 页面上有说明。
-
-#### （2017-07-06）3.0.0:
-
-  * 更新 Apache Mina、fastjson 等依赖关系的版本到最新；
-  * 引入 [NanoHTTP](https://github.com/NanoHttpd/nanohttpd) 作为管理界面服务器。
-
-详细信息请参考源码目录下的 tutorials 目录。
-
-本项目源代码托管的唯一地址是开源中国 git@osc，如果有什么疑问或 BUG 报告，请在 [Issues](http://gitee.com/yidinghe/mina-app-server/issues) 中讨论和提交。
+- 基于 Spring Boot 来打包和启动；
+- 基于 zookeeper 实现服务注册、发现、高可用和负载均衡；
+- 通过注解来实现在浏览器上展示接口文档，以及对接口进行测试；

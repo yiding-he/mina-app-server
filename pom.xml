@@ -112,17 +112,24 @@
         </plugins>
     </build>
 
-    <distributionManagement>
-        <repository>
-            <id>znxunzhi</id>
-            <name>public</name>
-            <url>http://120.25.145.102:8081/nexus/content/repositories/releases/</url>
-        </repository>
-        <snapshotRepository>
-            <id>znxunzhi</id>
-            <name>Snapshots</name>
-            <url>http://120.25.145.102:8081/nexus/content/repositories/snapshots/</url>
-        </snapshotRepository>
-    </distributionManagement>
-
+    <profiles>
+        <profile>
+            <id>dev</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <distributionManagement>
+                <repository>
+                    <id>znxunzhi</id>
+                    <name>public</name>
+                    <url>http://${env.DEV_NEXUS_SERVER}/nexus/content/repositories/releases/</url>
+                </repository>
+                <snapshotRepository>
+                    <id>znxunzhi</id>
+                    <name>Snapshots</name>
+                    <url>http://${env.DEV_NEXUS_SERVER}/nexus/content/repositories/snapshots/</url>
+                </snapshotRepository>
+            </distributionManagement>
+        </profile>
+    </profiles>
 </project>

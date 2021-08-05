@@ -41,7 +41,7 @@ import java.util.List;
 @SuppressWarnings("unchecked")
 public class MinaAppServer {
 
-    public static final String VERSION_STRING = "3.0";
+    public static final String VERSION_STRING = "3.0.1";
 
     private static final Logger LOG = LoggerFactory.getLogger(MinaAppServer.class);
 
@@ -187,11 +187,13 @@ public class MinaAppServer {
 
         try {
             MinaAppServerConfigurator configurator = applicationContext.getBean(MinaAppServerConfigurator.class);
+            LOG.info("Applying " + configurator.getClass().getCanonicalName() + "...");
+
             setupCoreInterceptors(configurator.getAuthenticator());             // core interceptors
             configurator.configureInterceptors(this.core.getInterceptors());    // user defined interceptors
             this.setInvocationListener(configurator.getInvocationListener());
         } catch (NoSuchBeanDefinitionException e) {
-            // ignore this
+            // configurator not exist, ignore this
         } catch (BeansException e) {
             LOG.error("Unable to get bean MinaAppServerConfigurator: " + e.toString());
         }

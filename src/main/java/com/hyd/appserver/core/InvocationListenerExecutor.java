@@ -5,8 +5,7 @@ import com.hyd.appserver.InvocationListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.*;
 
 /**
  * 日志处理执行类
@@ -15,9 +14,9 @@ import java.util.concurrent.Executors;
  */
 public class InvocationListenerExecutor {
 
-    static volatile ExecutorService service;
+    private static volatile ExecutorService service;
 
-    public static final int DEFAULT_MAX_RUNNING = 3;
+    private static final int DEFAULT_MAX_RUNNING = 3;
 
     private static int maxRunning = DEFAULT_MAX_RUNNING;
 
@@ -42,7 +41,8 @@ public class InvocationListenerExecutor {
         if (service == null) {
             synchronized (InvocationListenerExecutor.class) {
                 if (service == null) {
-                    service = Executors.newFixedThreadPool(maxRunning);
+                    service = new ThreadPoolExecutor(0, maxRunning, 1, TimeUnit.SECONDS,
+                            new LinkedBlockingQueue<>(100), new ThreadPoolExecutor.DiscardOldestPolicy());
                 }
             }
         }

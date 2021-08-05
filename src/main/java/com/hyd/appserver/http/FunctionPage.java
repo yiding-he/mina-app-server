@@ -18,12 +18,12 @@ public class FunctionPage {
     private static final String page_pattern = "<html><head>" +
             "<title>%s</title>" +
             "<meta name=\"viewport\" content=\"width=device-width, user-scalable=no\">" +
-            "<link rel=\"stylesheet\" href=\"default.css\"/>" +
-            "<link rel=\"stylesheet\" href=\"function.css\"/>" +
+            "<link rel=\"stylesheet\" href=\"../default.css\"/>" +
+            "<link rel=\"stylesheet\" href=\"../function.css\"/>" +
             "<style type=\"text/css\">%s</style>" +
             "</head><body>" +
             "<div style=\"margin:5px;\">" +
-            "<a href=\"./\">接口列表</a> &gt; %s" +
+            "<a href=\"../\">接口列表</a> &gt; %s" +
             "</div>" +
             "<div class=\"result\"><strong>请求</strong><br/>%s</div>" +
             "<div class=\"result\"><strong>调用结果</strong><br/>%s</div>" +
@@ -66,7 +66,7 @@ public class FunctionPage {
             "%s" +
             "</div>";
 
-    public static final String pojo_type_link_pattern = "<a href=\"pojo/%s\">%s</a>";
+    public static final String pojo_type_link_pattern = "<a href=\"../pojo/%s\">%s</a>";
 
     /////////////////////////////////////////
 
@@ -161,7 +161,7 @@ public class FunctionPage {
         if (parameterStr.length() == 0) {
             return "";
         } else {
-            return String.format(param_form_pattern, StringUtils.encodeUrl("functions" + actionName), parameterStr);
+            return String.format(param_form_pattern, StringUtils.encodeUrl(actionName), parameterStr);
         }
     }
 

@@ -47,7 +47,7 @@ public class ServerStatusPage {
             "  %s" +
             "</body></html>";
 
-    private static final String action_pattern = "<div><a name=\"%s\"></a>" +
+    private static final String action_pattern = "<div class=\"action_block\"><a name=\"%s\"></a>" +
             "  <h3>%s</h3>" +
             "  <div>执行次数：%d</div>" +
             "  <div>总执行时间（毫秒）：%d</div>" +

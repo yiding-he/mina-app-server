@@ -10,6 +10,7 @@ import com.hyd.appserver.annotations.Parameter;
 import com.hyd.appserver.annotations.Type;
 import com.hyd.appserver.core.ClientInfo;
 import com.hyd.appserver.core.Protocol;
+import com.hyd.appserver.core.ServerConfiguration;
 import com.hyd.appserver.utils.JsonUtils;
 import com.hyd.appserver.utils.StringUtils;
 import fi.iki.elonen.NanoHTTPD;
@@ -110,8 +111,14 @@ public class NanoHttpdServer extends NanoHTTPD {
             uri = uri.substring(0, uri.indexOf("?"));
         }
 
+        ServerConfiguration conf = server.getCore().getServerConfiguration();
+
         Request request = new Request();
-        request.setFunctionPath(uri.substring("functions".length()));
+        if (conf.isCompatibilityMode()) {
+            request.setFunctionPath(uri.substring("functions/".length()));
+        } else {
+            request.setFunctionPath(uri.substring("functions".length()));
+        }
 
         Class<? extends Action> actionClass = this.server.getCore().getTypeMappings().find(request.getFunctionPath());
         Function function = AnnotationUtils.getFunction(actionClass);
